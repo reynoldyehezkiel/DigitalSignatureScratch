@@ -8,4 +8,7 @@
 
     <string name="menu_document">Documents</string>
     <string name="menu_signature">Signatures</string>
+    <string name="file_name">File name</string>
+    <string name="date_amp_time"><![CDATA[Date & Time]]></string>
+    <string name="size">Size</string>
 </resources>
