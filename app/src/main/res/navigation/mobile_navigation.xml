@@ -3,23 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_home">
+    app:startDestination="@+id/nav_document">
 
     <fragment
-        android:id="@+id/nav_home"
-        android:name="com.app.digitalsignature.ui.home.HomeFragment"
-        android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/nav_document"
+        android:name="com.app.digitalsignature.ui.DocumentFragment"
+        android:label="@string/menu_document"
+        tools:layout="@layout/fragment_document" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.app.digitalsignature.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
-
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.app.digitalsignature.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_signature"
+        android:name="com.app.digitalsignature.ui.SignatureFragment"
+        android:label="@string/menu_signature"
+        tools:layout="@layout/fragment_signature" />
 </navigation>

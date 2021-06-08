@@ -5,4 +5,19 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="margin_5">5dp</dimen>
+    <dimen name="margin_9">9dp</dimen>
+    <dimen name="margin_15">15dp</dimen>
+    <dimen name="margin_20">20dp</dimen>
+    <dimen name="margin_25">25dp</dimen>
+    <dimen name="margin_12">12dp</dimen>
+    <dimen name="margin_30">30dp</dimen>
+    <dimen name="card_radius">5dp</dimen>
+    <dimen name="pick_btn_width">125dp</dimen>
+    <dimen name="font_medium">14sp</dimen>
+    <dimen name="font_large">16sp</dimen>
+    <dimen name="btns_height">40dp</dimen>
+    <dimen name="card_elevation">3dp</dimen>
+    <dimen name="thumbnail_size">90dp</dimen>
 </resources>
