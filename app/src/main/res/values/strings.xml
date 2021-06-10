@@ -6,6 +6,12 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <string name="message">Touch and move your finger in the Area below to create a Digital Signature.</string>
+    <string name="clear">Clear</string>
+    <string name="choose_file">Choose File</string>
+    <string name="choose_file_description">Click the button to choose file</string>
+    <string name="save">Save</string>
+
     <string name="menu_document">Documents</string>
     <string name="menu_signature">Signatures</string>
     <string name="file_name">File name</string>

@@ -3,13 +3,12 @@ package com.app.digitalsignature
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import android.widget.*
+import android.view.Menu
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.app.digitalsignature.databinding.ActivityPdfviewerBinding
+import kotlinx.android.synthetic.main.activity_pdfviewer.*
 
 class PDFViewerActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityPdfviewerBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +19,7 @@ class PDFViewerActivity : AppCompatActivity() {
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
                 if (viewType.equals("storage")) {
                     val selectedPDF = Uri.parse((intent.getStringExtra("FileUri")))
-                    binding.pdfView.fromUri(selectedPDF)
+                    pdfView.fromUri(selectedPDF)
                         .password(null)
                         .defaultPage(0)
                         .enableSwipe(true)
@@ -45,5 +44,15 @@ class PDFViewerActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 }

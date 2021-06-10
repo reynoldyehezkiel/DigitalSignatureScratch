@@ -16,6 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DigitalSignature">
+        <activity android:name=".SignatureActivity"
+            android:screenOrientation="landscape"/>
         <activity android:name=".PDFViewerActivity" />
         <activity
             android:name=".MainActivity"

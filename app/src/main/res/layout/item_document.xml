@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/card_parent"
+    android:id="@+id/itemDocumentCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="3dp"
@@ -35,7 +35,7 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/fileItemTextview"
+                android:id="@+id/fileNameTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
@@ -47,20 +47,20 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/dateItemTimeTextView"
+                android:id="@+id/dateTimeTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/fileItemTextview"
+                android:layout_below="@id/fileNameTextView"
                 android:gravity="start|center"
                 android:text="@string/date_amp_time"
                 android:textColor="@color/grey_10"
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/sizeItemTimeTextView"
+                android:id="@+id/sizeTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/fileItemTextview"
+                android:layout_below="@id/dateTimeTextView"
                 android:layout_marginEnd="16dp"
                 android:gravity="end"
                 android:text="@string/size"

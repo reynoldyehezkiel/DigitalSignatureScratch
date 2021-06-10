@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import com.app.digitalsignature.PDFViewerActivity
+import com.app.digitalsignature.R
 import com.app.digitalsignature.databinding.FragmentDocumentBinding
 import com.linkdev.filepicker.factory.IPickFilesFactory
 import com.linkdev.filepicker.interactions.PickFilesStatusCallback
@@ -17,23 +18,21 @@ import com.linkdev.filepicker.models.ErrorModel
 import com.linkdev.filepicker.models.ErrorStatus
 import com.linkdev.filepicker.models.FileData
 
-class DocumentFragment : Fragment() {
+class DocumentFragment : Fragment(R.layout.fragment_document) {
 
-    private var _binding: FragmentDocumentBinding? = null
-    private lateinit var pickFilesFactory: IPickFilesFactory
+    private lateinit var binding: FragmentDocumentBinding
+    private var pickFilesFactory: IPickFilesFactory? = null
 
     companion object {
         private const val PICK_PDF_CODE = 1000
     }
-
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentDocumentBinding.inflate(inflater, container, false)
+        binding = FragmentDocumentBinding.inflate(inflater, container, false)
 
         return binding.root
     }
@@ -57,7 +56,7 @@ class DocumentFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        pickFilesFactory.handleActivityResult(requestCode, resultCode, data, pickFilesCallback)
+        pickFilesFactory?.handleActivityResult(requestCode, resultCode, data, pickFilesCallback)
 
         if (requestCode == PICK_PDF_CODE && resultCode == Activity.RESULT_OK && data != null) {
             val selectedPDF = data.data
@@ -88,10 +87,5 @@ class DocumentFragment : Fragment() {
 
     private fun showToastMessage(@StringRes message: Int) {
         Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
