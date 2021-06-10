@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="50"
-    tools:context=".MainActivity"
-    android:background="#ffffff">
+    tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/linearMessage"
