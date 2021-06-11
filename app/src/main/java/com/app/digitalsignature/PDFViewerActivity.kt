@@ -50,7 +50,7 @@ class PDFViewerActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
+        menuInflater.inflate(R.menu.document_menu, menu)
         return true
     }
 

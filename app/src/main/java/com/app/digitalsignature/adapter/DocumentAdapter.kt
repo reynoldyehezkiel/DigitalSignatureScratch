@@ -1,6 +1,5 @@
 package com.app.digitalsignature.adapter
 
-import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -8,13 +7,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.digitalsignature.CustomOnItemClickListener
 import com.app.digitalsignature.R
+import com.app.digitalsignature.DatabaseTest
 import com.app.digitalsignature.entity.Document
-//import com.app.digitalsignature.DocumentAddUpdateActivity
+import com.app.digitalsignature.ui.DocumentFragment
 import kotlinx.android.synthetic.main.item_document.view.*
 
-class DocumentAdapter(private val activity: Activity) : RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder>() {
 
-    private var listDocuments = ArrayList<Document>()
+class DocumentAdapter(private val fragment: DocumentFragment) : RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder>() {
+
+    var listDocuments = ArrayList<Document>()
         set(listDocuments) {
             if (listDocuments.size > 0) {
                 this.listDocuments.clear()
@@ -59,10 +60,20 @@ class DocumentAdapter(private val activity: Activity) : RecyclerView.Adapter<Doc
                 sizeTextView.text = document.size
                 itemDocumentCardView.setOnClickListener(CustomOnItemClickListener(adapterPosition, object : CustomOnItemClickListener.OnItemClickCallback {
                     override fun onItemClicked(view: View, position: Int) {
-//                        val intent = Intent(activity, DocumentAddUpdateActivity::class.java)
-//                        intent.putExtra(DocumentAddUpdateActivity.EXTRA_POSITION, position)
-//                        intent.putExtra(DocumentAddUpdateActivity.EXTRA_NOTE, document)
-//                        activity.startActivityForResult(intent, DocumentAddUpdateActivity.REQUEST_UPDATE)
+                        val intent = Intent(context, DatabaseTest::class.java)
+                        intent.putExtra(DatabaseTest.EXTRA_POSITION, position)
+                        intent.putExtra(DatabaseTest.EXTRA_DOCUMENT, document)
+                        fragment.startActivityForResult(intent, DatabaseTest.REQUEST_UPDATE)
+
+//                        val bundle = Bundle()
+//                        bundle.putInt(Test.EXTRA_POSITION, position)
+//                        bundle.putParcelable(Test.EXTRA_DOCUMENT, document)
+//                        fragment.arguments = bundle
+//
+//                        val ft: FragmentTransaction = supportFragmentManager().beginTransaction()
+//                        val fragment: Fragment = CommentsFragment.newInstance(mDescribable)
+//                        ft.replace(R.id.comments_fragment, fragment)
+//                        ft.commit()
                     }
                 }))
             }
