@@ -30,6 +30,7 @@ class DocumentAdapter(private val activity: MainActivity) : RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: DocumentViewHolder, position: Int) {
         holder.bind(listDocuments[position])
+//        notifyItemChanged(position)
     }
 
     override fun getItemCount(): Int = this.listDocuments.size

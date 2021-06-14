@@ -142,7 +142,7 @@ class DatabaseTest : AppCompatActivity(), View.OnClickListener {
         showAlertDialog(ALERT_DIALOG_CLOSE)
     }
 
-    private fun showAlertDialog(type: Int) {
+    fun showAlertDialog(type: Int) {
         val isDialogClose = type == ALERT_DIALOG_CLOSE
         val dialogTitle: String
         val dialogMessage: String
