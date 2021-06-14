@@ -5,15 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.app.digitalsignature.CustomOnItemClickListener
-import com.app.digitalsignature.R
-import com.app.digitalsignature.DatabaseTest
+import com.app.digitalsignature.*
 import com.app.digitalsignature.entity.Document
 import com.app.digitalsignature.ui.DocumentFragment
 import kotlinx.android.synthetic.main.item_document.view.*
 
 
-class DocumentAdapter(private val fragment: DocumentFragment) : RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder>() {
+class DocumentAdapter(private val activity: MainActivity) : RecyclerView.Adapter<DocumentAdapter.DocumentViewHolder>() {
 
     var listDocuments = ArrayList<Document>()
         set(listDocuments) {
@@ -63,7 +61,7 @@ class DocumentAdapter(private val fragment: DocumentFragment) : RecyclerView.Ada
                         val intent = Intent(context, DatabaseTest::class.java)
                         intent.putExtra(DatabaseTest.EXTRA_POSITION, position)
                         intent.putExtra(DatabaseTest.EXTRA_DOCUMENT, document)
-                        fragment.startActivityForResult(intent, DatabaseTest.REQUEST_UPDATE)
+                        activity.startActivityForResult(intent, DatabaseTest.REQUEST_UPDATE)
 
 //                        val bundle = Bundle()
 //                        bundle.putInt(Test.EXTRA_POSITION, position)

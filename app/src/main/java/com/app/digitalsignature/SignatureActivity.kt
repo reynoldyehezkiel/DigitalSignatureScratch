@@ -1,6 +1,5 @@
 package com.app.digitalsignature
 
-import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -10,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.github.gcacace.signaturepad.views.SignaturePad
@@ -30,6 +31,9 @@ class SignatureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signature)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Draw Signature"
 
         btnClear.isEnabled = false
         btnSave.isEnabled = false
@@ -56,7 +60,7 @@ class SignatureActivity : AppCompatActivity() {
 
         //next to File Picker activity
         btnSave.setOnClickListener {
-            val signatureBitmap = signaturePad.signatureBitmap
+            var signatureBitmap = signaturePad.transparentSignatureBitmap
 
             if (addJpgSignatureToGallery(signatureBitmap)) {
 //                deleteFile()
@@ -101,14 +105,13 @@ class SignatureActivity : AppCompatActivity() {
     @Throws(IOException::class)
     fun saveBitmapToJPG(bitmap: Bitmap, photo: File?) {
         val newBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(newBitmap)
-        val stream: OutputStream = FileOutputStream(photo)
 
+        val canvas = Canvas(newBitmap)
         canvas.drawColor(Color.WHITE)
         canvas.drawBitmap(bitmap, 0f, 0f, null)
 
+        val stream: OutputStream = FileOutputStream(photo)
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
-
         stream.close()
     }
 
@@ -121,7 +124,7 @@ class SignatureActivity : AppCompatActivity() {
                     System.currentTimeMillis()
                 )
             )
-            saveBitmapToJPG(signature, photo)
+            trimImage(signature)?.let { saveBitmapToJPG(it, photo) }
             scanMediaFile(photo)
             result = true
         } catch (e: IOException) {
@@ -135,6 +138,57 @@ class SignatureActivity : AppCompatActivity() {
         val contentUri = Uri.fromFile(photo)
         mediaScanIntent.data = contentUri
         this@SignatureActivity.sendBroadcast(mediaScanIntent)
+    }
+
+    private fun trimImage(bmp: Bitmap): Bitmap? {
+        val imgHeight = bmp.height
+        val imgWidth = bmp.width
+
+        //TRIM WIDTH
+        var width = 0
+        for (i in 0 until imgHeight) {
+            for (j in imgWidth - 1 downTo 0) {
+                if (bmp.getPixel(j, i) != Color.TRANSPARENT &&
+                    j > width
+                ) {
+                    width = j
+                    break
+                }
+            }
+        }
+        //TRIM HEIGHT
+        var height = 0
+        for (i in 0 until imgWidth) {
+            for (j in imgHeight - 1 downTo 0) {
+                if (bmp.getPixel(i, j) != Color.TRANSPARENT &&
+                    j > height
+                ) {
+                    height = j
+                    break
+                }
+            }
+        }
+        return Bitmap.createBitmap(bmp, 0, 0, width, height)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.signature_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finish()
     }
 
 //    private fun deleteFile(){
