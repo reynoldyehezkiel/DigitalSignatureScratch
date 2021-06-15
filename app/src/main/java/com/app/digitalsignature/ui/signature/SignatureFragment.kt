@@ -1,4 +1,4 @@
-package com.app.digitalsignature.ui
+package com.app.digitalsignature.ui.signature
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.app.digitalsignature.R
-import com.app.digitalsignature.SignatureActivity
 import com.app.digitalsignature.databinding.FragmentSignatureBinding
 
 class SignatureFragment : Fragment(R.layout.fragment_signature) {

@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.app.digitalsignature.*
 import com.app.digitalsignature.entity.Document
-import com.app.digitalsignature.ui.DocumentFragment
 import kotlinx.android.synthetic.main.item_document.view.*
 
 
@@ -30,7 +29,6 @@ class DocumentAdapter(private val activity: MainActivity) : RecyclerView.Adapter
 
     override fun onBindViewHolder(holder: DocumentViewHolder, position: Int) {
         holder.bind(listDocuments[position])
-//        notifyItemChanged(position)
     }
 
     override fun getItemCount(): Int = this.listDocuments.size
@@ -63,16 +61,6 @@ class DocumentAdapter(private val activity: MainActivity) : RecyclerView.Adapter
                         intent.putExtra(DatabaseTest.EXTRA_POSITION, position)
                         intent.putExtra(DatabaseTest.EXTRA_DOCUMENT, document)
                         activity.startActivityForResult(intent, DatabaseTest.REQUEST_UPDATE)
-
-//                        val bundle = Bundle()
-//                        bundle.putInt(Test.EXTRA_POSITION, position)
-//                        bundle.putParcelable(Test.EXTRA_DOCUMENT, document)
-//                        fragment.arguments = bundle
-//
-//                        val ft: FragmentTransaction = supportFragmentManager().beginTransaction()
-//                        val fragment: Fragment = CommentsFragment.newInstance(mDescribable)
-//                        ft.replace(R.id.comments_fragment, fragment)
-//                        ft.commit()
                     }
                 }))
             }

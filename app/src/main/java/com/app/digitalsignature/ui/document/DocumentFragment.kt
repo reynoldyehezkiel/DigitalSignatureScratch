@@ -1,8 +1,6 @@
-package com.app.digitalsignature.ui
+package com.app.digitalsignature.ui.document
 
 import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,20 +8,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.core.app.ShareCompat
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.digitalsignature.DatabaseTest
 import com.app.digitalsignature.MainActivity
-import com.app.digitalsignature.PDFViewerActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.adapter.DocumentAdapter
 import com.app.digitalsignature.databinding.FragmentDocumentBinding
 import com.app.digitalsignature.db.DocumentHelper
 import com.app.digitalsignature.entity.Document
 import com.app.digitalsignature.helper.MappingHelper
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.linkdev.filepicker.factory.IPickFilesFactory
 import com.linkdev.filepicker.interactions.PickFilesStatusCallback
@@ -35,7 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 class DocumentFragment : Fragment(R.layout.fragment_document) {

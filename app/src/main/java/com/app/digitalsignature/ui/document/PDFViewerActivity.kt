@@ -1,5 +1,6 @@
-package com.app.digitalsignature
+package com.app.digitalsignature.ui.document
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
@@ -7,6 +8,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.app.digitalsignature.R
+import com.app.digitalsignature.ui.signature.SignatureViewActivity
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 
 class PDFViewerActivity : AppCompatActivity() {
@@ -31,13 +34,10 @@ class PDFViewerActivity : AppCompatActivity() {
                         .enableSwipe(true)
                         .swipeHorizontal(false)
                         .enableDoubletap(true)
-                        .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
-
-                        }.onDrawAll { canvas, pageWidth, pageHeight, displayedPage ->
-
-                        }.onPageChange { page, pageCount ->
-
-                        }.onPageError { page, t ->
+//                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
+//                        .onDrawAll { canvas, pageWidth, pageHeight, displayedPage -> }
+//                        .onPageChange { page, pageCount -> }
+                    .onPageError { page, t ->
                             Toast.makeText(
                                 this,
                                 "Error while opening the page$page",
@@ -67,6 +67,10 @@ class PDFViewerActivity : AppCompatActivity() {
             android.R.id.home -> {
                 finish()
                 return true
+            }
+            R.id.action_sign -> {
+                val intent = Intent(this, SignatureViewActivity::class.java)
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)

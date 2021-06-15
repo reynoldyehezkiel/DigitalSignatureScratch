@@ -16,11 +16,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DigitalSignature">
-        <activity android:name=".DatabaseTest"></activity>
+        <activity android:name=".ui.signature.SignatureViewActivity"></activity>
+        <activity android:name=".DatabaseTest" />
         <activity
-            android:name=".SignatureActivity"
+            android:name=".ui.signature.SignatureActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".PDFViewerActivity" />
+        <activity android:name=".ui.document.PDFViewerActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

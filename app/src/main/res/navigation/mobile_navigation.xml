@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/nav_document"
-        android:name="com.app.digitalsignature.ui.DocumentFragment"
+        android:name="com.app.digitalsignature.ui.document.DocumentFragment"
         android:label="@string/menu_document"
         tools:layout="@layout/fragment_document" />
 
     <fragment
         android:id="@+id/nav_signature"
-        android:name="com.app.digitalsignature.ui.SignatureFragment"
+        android:name="com.app.digitalsignature.ui.signature.SignatureFragment"
         android:label="@string/menu_signature"
         tools:layout="@layout/fragment_signature" />
 </navigation>

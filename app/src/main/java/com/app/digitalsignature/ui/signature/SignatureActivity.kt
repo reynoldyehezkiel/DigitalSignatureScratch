@@ -1,4 +1,4 @@
-package com.app.digitalsignature
+package com.app.digitalsignature.ui.signature
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.app.digitalsignature.R
 import com.github.gcacace.signaturepad.views.SignaturePad
 import kotlinx.android.synthetic.main.activity_signature.*
 import java.io.*

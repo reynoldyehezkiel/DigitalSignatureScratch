@@ -9,17 +9,26 @@ androidExtensions{
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('D:\\Coding\\AndroidStudioProjects\\KeyStore\\key.jks')
+            storePassword 'admin1'
+            keyAlias 'key0'
+            keyPassword 'admin1'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.app.digitalsignature"
-        minSdkVersion 29
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
 
     buildTypes {
