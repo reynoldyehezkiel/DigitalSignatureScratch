@@ -1,5 +1,7 @@
 package com.app.digitalsignature.ui.document
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,12 +11,16 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
-import com.app.digitalsignature.ui.signature.SignatureViewActivity
+import com.app.digitalsignature.ui.signature.SignatureActivity
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 
 class PDFViewerActivity : AppCompatActivity() {
 
     private lateinit var mMenu: Menu
+
+    companion object{
+        const val ALERT_DIALOG_CLOSE = 10
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,12 +43,12 @@ class PDFViewerActivity : AppCompatActivity() {
 //                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
 //                        .onDrawAll { canvas, pageWidth, pageHeight, displayedPage -> }
 //                        .onPageChange { page, pageCount -> }
-                    .onPageError { page, t ->
-                            Toast.makeText(
-                                this,
-                                "Error while opening the page$page",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        .onPageError { page, t ->
+                                Toast.makeText(
+                                    this,
+                                    "Error while opening the page$page",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
                         }.onTap { false }
                         .enableAnnotationRendering(true)
@@ -69,7 +75,7 @@ class PDFViewerActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_sign -> {
-                val intent = Intent(this, SignatureViewActivity::class.java)
+                val intent = Intent(this, SignatureActivity::class.java)
                 startActivity(intent)
             }
         }
@@ -78,7 +84,7 @@ class PDFViewerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        this.finish()
+        finish()
     }
 
 }

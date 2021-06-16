@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
+import com.app.digitalsignature.ui.document.PDFViewerActivity
 import com.github.gcacace.signaturepad.views.SignaturePad
 import kotlinx.android.synthetic.main.activity_signature.*
 import java.io.*
@@ -24,6 +25,10 @@ class SignatureActivity : AppCompatActivity() {
     private val directory =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             .toString() + "/$folderName/" + ".nomedia"
+
+    private lateinit var mMenu: Menu
+    private lateinit var saveSignature: MenuItem
+    private lateinit var clearSignature: MenuItem
 
     companion object {
         private const val REQUEST_EXTERNAL_STORAGE = 1
@@ -36,46 +41,62 @@ class SignatureActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Draw Signature"
 
-        btnClear.isEnabled = false
-        btnSave.isEnabled = false
-
         //draw signature
         signaturePad.setOnSignedListener(object : SignaturePad.OnSignedListener {
             override fun onStartSigning() {}
 
+            // enable icon button when start signing
             override fun onSigned() {
-                btnSave.isEnabled = true
-                btnClear.isEnabled = true
+                saveSignature.isEnabled = true
+                saveSignature.icon.alpha = 255
+                clearSignature.isEnabled = true
+                clearSignature.icon.alpha = 255
             }
 
+            // disable icon button when clear the signature
             override fun onClear() {
-                btnSave.isEnabled = false
-                btnClear.isEnabled = false
+                saveSignature.isEnabled = false
+                saveSignature.icon.alpha = 130
+                clearSignature.isEnabled = false
+                clearSignature.icon.alpha = 130
             }
         })
+    }
 
-        //clear signature
-        btnClear.setOnClickListener {
-            signaturePad.clear()
-        }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.signature_menu, menu)
+        this.mMenu = menu
+        saveSignature = menu.findItem(R.id.action_save)
+        saveSignature.isEnabled = false
+        saveSignature.icon.alpha = 130
+        clearSignature = menu.findItem(R.id.action_clear)
+        clearSignature.isEnabled = false
+        clearSignature.icon.alpha = 130
 
-        //next to File Picker activity
-        btnSave.setOnClickListener {
-            var signatureBitmap = signaturePad.transparentSignatureBitmap
+        return true
+    }
 
-            if (addJpgSignatureToGallery(signatureBitmap)) {
-//                deleteFile()
-                Toast.makeText(
-                    this@SignatureActivity, "The signature is saved succesfully",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    this@SignatureActivity, "Unable to save Signature",
-                    Toast.LENGTH_SHORT
-                ).show()
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+            // clear signature
+            R.id.action_clear -> {
+                signaturePad.clear()
+            }
+            // save signature
+            R.id.action_save -> {
+                saveSignature()
             }
         }
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finish()
     }
 
     override fun onRequestPermissionsResult(
@@ -94,6 +115,25 @@ class SignatureActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveSignature(){
+//        val signatureBitmap = signaturePad.transparentSignatureBitmap
+        val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
+
+        if (addJpgSignatureToGallery(signatureBitmap)) {
+//                deleteFile()
+            Toast.makeText(
+                this@SignatureActivity, "The signature is saved successfully",
+                Toast.LENGTH_SHORT
+            ).show()
+            finish()
+        } else {
+            Toast.makeText(
+                this@SignatureActivity, "Unable to save Signature",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     private fun createAlbumStorageDir(): File {
         val file = File(directory)
         if (!file.mkdirs()) {
@@ -108,11 +148,11 @@ class SignatureActivity : AppCompatActivity() {
         val newBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(newBitmap)
-        canvas.drawColor(Color.WHITE)
+        canvas.drawColor(Color.TRANSPARENT)
         canvas.drawBitmap(bitmap, 0f, 0f, null)
 
         val stream: OutputStream = FileOutputStream(photo)
-        newBitmap.compress(Bitmap.CompressFormat.JPEG, 80, stream)
+        newBitmap.compress(Bitmap.CompressFormat.PNG, 80, stream)
         stream.close()
     }
 
@@ -125,7 +165,7 @@ class SignatureActivity : AppCompatActivity() {
                     System.currentTimeMillis()
                 )
             )
-            trimImage(signature)?.let { saveBitmapToJPG(it, photo) }
+            saveBitmapToJPG(signature, photo)
             scanMediaFile(photo)
             result = true
         } catch (e: IOException) {
@@ -139,57 +179,6 @@ class SignatureActivity : AppCompatActivity() {
         val contentUri = Uri.fromFile(photo)
         mediaScanIntent.data = contentUri
         this@SignatureActivity.sendBroadcast(mediaScanIntent)
-    }
-
-    private fun trimImage(bmp: Bitmap): Bitmap? {
-        val imgHeight = bmp.height
-        val imgWidth = bmp.width
-
-        //TRIM WIDTH
-        var width = 0
-        for (i in 0 until imgHeight) {
-            for (j in imgWidth - 1 downTo 0) {
-                if (bmp.getPixel(j, i) != Color.TRANSPARENT &&
-                    j > width
-                ) {
-                    width = j
-                    break
-                }
-            }
-        }
-        //TRIM HEIGHT
-        var height = 0
-        for (i in 0 until imgWidth) {
-            for (j in imgHeight - 1 downTo 0) {
-                if (bmp.getPixel(i, j) != Color.TRANSPARENT &&
-                    j > height
-                ) {
-                    height = j
-                    break
-                }
-            }
-        }
-        return Bitmap.createBitmap(bmp, 0, 0, width, height)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.signature_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.finish()
     }
 
 //    private fun deleteFile(){
