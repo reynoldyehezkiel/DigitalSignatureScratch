@@ -66,10 +66,8 @@ class SignatureActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.signature_menu, menu)
         this.mMenu = menu
         saveSignature = menu.findItem(R.id.action_save)
-        saveSignature.isEnabled = false
         saveSignature.icon.alpha = 130
         clearSignature = menu.findItem(R.id.action_clear)
-        clearSignature.isEnabled = false
         clearSignature.icon.alpha = 130
 
         return true
@@ -115,7 +113,6 @@ class SignatureActivity : AppCompatActivity() {
     }
 
     private fun saveSignature(){
-//        val signatureBitmap = signaturePad.transparentSignatureBitmap
         val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
 
         if (addJpgSignatureToGallery(signatureBitmap)) {

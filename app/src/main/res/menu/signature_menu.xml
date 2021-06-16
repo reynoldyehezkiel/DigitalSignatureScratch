@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_clear"
+        android:enabled="false"
         android:icon="@drawable/ic_option_clear"
         android:orderInCategory="100"
         android:title="Save Signature"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_save"
+        android:enabled="false"
         android:icon="@drawable/ic_option_check"
         android:orderInCategory="100"
         android:title="Save Signature"

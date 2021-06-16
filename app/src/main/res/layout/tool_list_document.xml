@@ -7,31 +7,6 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/lyt_openFile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="?attr/actionBarSize"
-            android:layout_height="?attr/actionBarSize"
-            android:padding="@dimen/spacing_large"
-            android:src="@drawable/ic_tool_file"
-            app:tint="@color/grey_10" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Open File"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/grey_90" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
         android:id="@+id/lyt_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,7 +56,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/lyt_copyTo"
+        android:id="@+id/lyt_download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
@@ -104,54 +79,5 @@
             android:textColor="@color/grey_90" />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/lyt_rename"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="?attr/actionBarSize"
-            android:layout_height="?attr/actionBarSize"
-            android:padding="@dimen/spacing_large"
-            android:src="@drawable/ic_tool_rename"
-            app:tint="@color/grey_10" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Rename"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/grey_90" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/lyt_delete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="?attr/actionBarSize"
-            android:layout_height="?attr/actionBarSize"
-            android:padding="@dimen/spacing_large"
-            android:src="@drawable/ic_tool_delete"
-            app:tint="@color/grey_10" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Delete"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/grey_90" />
-
-    </LinearLayout>
-
 
 </LinearLayout>
