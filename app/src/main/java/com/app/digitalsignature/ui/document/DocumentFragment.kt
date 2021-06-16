@@ -9,39 +9,21 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.app.digitalsignature.DatabaseTest
-import com.app.digitalsignature.MainActivity
 import com.app.digitalsignature.R
-import com.app.digitalsignature.adapter.DocumentAdapter
 import com.app.digitalsignature.databinding.FragmentDocumentBinding
-import com.app.digitalsignature.db.DocumentHelper
-import com.app.digitalsignature.entity.Document
-import com.app.digitalsignature.helper.MappingHelper
-import com.google.android.material.snackbar.Snackbar
 import com.linkdev.filepicker.factory.IPickFilesFactory
 import com.linkdev.filepicker.interactions.PickFilesStatusCallback
 import com.linkdev.filepicker.models.ErrorModel
 import com.linkdev.filepicker.models.ErrorStatus
 import com.linkdev.filepicker.models.FileData
-import kotlinx.android.synthetic.main.fragment_document.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-
 
 class DocumentFragment : Fragment(R.layout.fragment_document) {
 
     private lateinit var binding: FragmentDocumentBinding
     private var pickFilesFactory: IPickFilesFactory? = null
 
-    private lateinit var adapter: DocumentAdapter
-    private lateinit var documentHelper: DocumentHelper
-
     companion object {
         private const val PICK_PDF_CODE = 1000
-        private const val EXTRA_STATE = "EXTRA_STATE"
     }
 
     override fun onCreateView(
@@ -58,63 +40,6 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
         super.onViewCreated(view, savedInstanceState)
 
         setListener()
-
-        rv_documents.layoutManager = LinearLayoutManager(activity)
-        rv_documents.setHasFixedSize(true)
-        adapter = DocumentAdapter(MainActivity())
-        rv_documents.adapter = adapter
-
-        binding.addTest.setOnClickListener {
-            val intent = Intent(activity, DatabaseTest::class.java)
-            startActivityForResult(intent, DatabaseTest.REQUEST_ADD)
-        }
-
-        documentHelper = DocumentHelper.getInstance(requireActivity().application)
-        documentHelper.open()
-
-        if (savedInstanceState == null) {
-            loadDocumentsAsync()
-        } else {
-            val list =
-                savedInstanceState.getParcelableArrayList<Document>(EXTRA_STATE)
-            if (list != null) {
-                adapter.listDocuments = list
-            }
-        }
-    }
-
-    private fun loadDocumentsAsync() {
-        GlobalScope.launch(Dispatchers.Main) {
-            progressbar.visibility = View.VISIBLE
-            val deferredDocuments = async(Dispatchers.IO) {
-                val cursor = documentHelper.queryAll()
-                MappingHelper.mapCursorToArrayList(cursor)
-            }
-            progressbar.visibility = View.INVISIBLE
-            val documents = deferredDocuments.await()
-            if (documents.size > 0) {
-                adapter.listDocuments = documents
-                rv_documents.visibility = View.VISIBLE
-                toDoEmptyView.visibility = View.INVISIBLE
-            } else {
-                adapter.listDocuments = ArrayList()
-//                showSnackbarMessage("Tidak ada data saat ini")
-            }
-        }
-    }
-
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        outState.putParcelableArrayList(EXTRA_STATE, adapter.listDocuments)
-//    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        documentHelper.close()
-    }
-
-    private fun showSnackbarMessage(message: String) {
-        Snackbar.make(rv_documents, message, Snackbar.LENGTH_SHORT).show()
     }
 
     private fun setListener(){
@@ -140,37 +65,6 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
             intent.putExtra("ViewType", "storage")
             intent.putExtra("FileUri", selectedPDF.toString())
             startActivity(intent)
-        }
-
-        if (data != null) {
-            when (requestCode) {
-                DatabaseTest.REQUEST_ADD -> if (resultCode == DatabaseTest.RESULT_ADD) {
-                    val document = data.getParcelableExtra<Document>(DatabaseTest.EXTRA_DOCUMENT)
-                    adapter.addItem(document!!)
-                    rv_documents.smoothScrollToPosition(adapter.itemCount - 1)
-
-                    showSnackbarMessage("Satu item berhasil ditambahkan")
-                }
-                DatabaseTest.REQUEST_UPDATE ->
-                    when (resultCode) {
-                        DatabaseTest.RESULT_UPDATE -> {
-                            val document = data.getParcelableExtra<Document>(DatabaseTest.EXTRA_DOCUMENT)
-                            val position = data.getIntExtra(DatabaseTest.EXTRA_POSITION, 0)
-
-                            adapter.updateItem(position, document!!)
-                            rv_documents.smoothScrollToPosition(position)
-
-                            showSnackbarMessage("Satu item berhasil diubah")
-                        }
-
-                        DatabaseTest.RESULT_DELETE -> {
-                            val position = data.getIntExtra(DatabaseTest.EXTRA_POSITION, 0)
-                            adapter.removeItem(position)
-
-                            showSnackbarMessage("Satu item berhasil dihapus")
-                        }
-                    }
-            }
         }
     }
 
