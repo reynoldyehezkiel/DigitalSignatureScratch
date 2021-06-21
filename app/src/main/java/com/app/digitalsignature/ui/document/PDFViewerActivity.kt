@@ -1,8 +1,10 @@
 package com.app.digitalsignature.ui.document
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
@@ -10,15 +12,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
+import io.github.hyuwah.draggableviewlib.DraggableView
+import io.github.hyuwah.draggableviewlib.setupDraggable
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
+import java.io.File
+
 
 class PDFViewerActivity : AppCompatActivity() {
 
     private lateinit var mMenu: Menu
 
-    companion object{
-        const val ALERT_DIALOG_CLOSE = 10
-    }
+    private val fileName = "Signature_test3"
+    private val folderName = "Digital Signature"
+    private val directory =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            .toString() + "/$folderName/" + ".nomedia/"
+    private val filePath = File("$directory$fileName.png")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +63,27 @@ class PDFViewerActivity : AppCompatActivity() {
                 }
             }
         }
+
+        signatureImage.setupDraggable()
+            .setAnimated(true)
+            .setStickyMode(DraggableView.Mode.NON_STICKY)
+            .build()
+
+        val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
+        signatureImage.setImageBitmap(myBitmap)
+
     }
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode === 1) {
+//            if (resultCode === RESULT_OK) {
+//                val signatureFile : String = intent.getStringExtra("signatureFile").toString()
+//                val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
+//                signatureImage.setImageBitmap(myBitmap)
+//            }
+//        }
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.document_menu, menu)

@@ -69,7 +69,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //Digital Signature
-//    implementation 'com.williamww:silky-signature:0.1.0'
     implementation 'com.github.gcacace:signature-pad:1.3.1'
 
     //File Picker
@@ -77,4 +76,7 @@ dependencies {
 
     //PDF Viewer
     implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'
+
+    //Drag & Drop
+    implementation 'com.github.hyuwah:DraggableView:1.0.0'
 }

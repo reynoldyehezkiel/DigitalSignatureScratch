@@ -18,16 +18,18 @@ import com.github.gcacace.signaturepad.views.SignaturePad
 import kotlinx.android.synthetic.main.activity_signature.*
 import java.io.*
 
-class SignatureActivity : AppCompatActivity() {
 
-    private val folderName = "Digital Signature"
-    private val directory =
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-            .toString() + "/$folderName/" + ".nomedia"
+class SignatureActivity : AppCompatActivity() {
 
     private lateinit var mMenu: Menu
     private lateinit var saveSignature: MenuItem
     private lateinit var clearSignature: MenuItem
+
+    private val fileName = "Signature_test3"
+    private val folderName = "Digital Signature"
+    private val directory =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+            .toString() + "/$folderName/" + ".nomedia/"
 
     companion object {
         private const val REQUEST_EXTERNAL_STORAGE = 1
@@ -121,6 +123,11 @@ class SignatureActivity : AppCompatActivity() {
                 this@SignatureActivity, "The signature is saved successfully",
                 Toast.LENGTH_SHORT
             ).show()
+
+            val resultIntent = Intent()
+            resultIntent.putExtra("signatureFile", "$directory$fileName.png")
+            setResult(RESULT_OK, resultIntent)
+
             finish()
         } else {
             Toast.makeText(
@@ -130,7 +137,7 @@ class SignatureActivity : AppCompatActivity() {
         }
     }
 
-    private fun createAlbumStorageDir(): File {
+    private fun createFolderStorageDir(): File {
         val file = File(directory)
         if (!file.mkdirs()) {
             Log.e(folderName, "Directory not created")
@@ -156,10 +163,8 @@ class SignatureActivity : AppCompatActivity() {
         var result = false
         try {
             val photo = File(
-                createAlbumStorageDir(), String.format(
-                    "Signature_%d.jpg",
-                    System.currentTimeMillis()
-                )
+                createFolderStorageDir(),
+                    "$fileName.png"
             )
             saveBitmapToJPG(signature, photo)
             scanMediaFile(photo)
@@ -178,7 +183,7 @@ class SignatureActivity : AppCompatActivity() {
     }
 
 //    private fun deleteFile(){
-//        val contentUri = "$directory$fileName.jpg"
+//        val contentUri = "$directory$fileName.png"
 //        val file = File(contentUri)
 //        file.delete()
 //        if (file.exists()) {
