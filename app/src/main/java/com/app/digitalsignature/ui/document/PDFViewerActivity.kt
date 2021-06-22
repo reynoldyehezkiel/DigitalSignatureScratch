@@ -70,12 +70,12 @@ class PDFViewerActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode === 1) {
-            if (resultCode === RESULT_OK) {
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
                 val signatureFile = data?.getStringExtra("signatureFileName").toString()
                 val filePath = File(signatureFile)
-                val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
-                signatureImage.setImageBitmap(myBitmap)
+                val signatureBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
+                signatureImage.setImageBitmap(signatureBitmap)
             }
         }
     }
