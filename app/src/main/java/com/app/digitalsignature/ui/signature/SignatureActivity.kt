@@ -25,7 +25,7 @@ class SignatureActivity : AppCompatActivity() {
     private lateinit var saveSignature: MenuItem
     private lateinit var clearSignature: MenuItem
 
-    private val fileName = "Signature_test3"
+    private val fileName = String.format("Signature_%d.jpg",System.currentTimeMillis())
     private val folderName = "Digital Signature"
     private val directory =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -93,27 +93,6 @@ class SignatureActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        this.finish()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
-            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    this@SignatureActivity, "Cannot write images to the Storage Media",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-
     private fun saveSignature(){
         val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
 
@@ -124,9 +103,9 @@ class SignatureActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
 
-            val resultIntent = Intent()
-            resultIntent.putExtra("signatureFile", "$directory$fileName.png")
-            setResult(RESULT_OK, resultIntent)
+            val intent = Intent()
+            intent.putExtra("signatureFileName", "$directory$fileName.png")
+            setResult(RESULT_OK, intent)
 
             finish()
         } else {
@@ -180,6 +159,27 @@ class SignatureActivity : AppCompatActivity() {
         val contentUri = Uri.fromFile(photo)
         mediaScanIntent.data = contentUri
         this@SignatureActivity.sendBroadcast(mediaScanIntent)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+            if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(
+                    this@SignatureActivity, "Cannot write images to the Storage Media",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        this.finish()
     }
 
 //    private fun deleteFile(){

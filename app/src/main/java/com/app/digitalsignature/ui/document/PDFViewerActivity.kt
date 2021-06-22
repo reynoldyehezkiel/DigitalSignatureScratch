@@ -22,13 +22,6 @@ class PDFViewerActivity : AppCompatActivity() {
 
     private lateinit var mMenu: Menu
 
-    private val fileName = "Signature_test3"
-    private val folderName = "Digital Signature"
-    private val directory =
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-            .toString() + "/$folderName/" + ".nomedia/"
-    private val filePath = File("$directory$fileName.png")
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
@@ -36,6 +29,16 @@ class PDFViewerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
+        viewPDF()
+
+        signatureImage.setupDraggable()
+            .setAnimated(true)
+            .setStickyMode(DraggableView.Mode.NON_STICKY)
+            .build()
+
+    }
+
+    private fun viewPDF(){
         if (intent != null) {
             val viewType = intent.getStringExtra("ViewType")
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
@@ -51,11 +54,11 @@ class PDFViewerActivity : AppCompatActivity() {
 //                        .onDrawAll { canvas, pageWidth, pageHeight, displayedPage -> }
 //                        .onPageChange { page, pageCount -> }
                         .onPageError { page, t ->
-                                Toast.makeText(
-                                    this,
-                                    "Error while opening the page$page",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            Toast.makeText(
+                                this,
+                                "Error while opening the page$page",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
                         }.onTap { false }
                         .enableAnnotationRendering(true)
@@ -63,27 +66,19 @@ class PDFViewerActivity : AppCompatActivity() {
                 }
             }
         }
-
-        signatureImage.setupDraggable()
-            .setAnimated(true)
-            .setStickyMode(DraggableView.Mode.NON_STICKY)
-            .build()
-
-        val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
-        signatureImage.setImageBitmap(myBitmap)
-
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode === 1) {
-//            if (resultCode === RESULT_OK) {
-//                val signatureFile : String = intent.getStringExtra("signatureFile").toString()
-//                val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
-//                signatureImage.setImageBitmap(myBitmap)
-//            }
-//        }
-//    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode === 1) {
+            if (resultCode === RESULT_OK) {
+                val signatureFile = data?.getStringExtra("signatureFileName").toString()
+                val filePath = File(signatureFile)
+                val myBitmap = BitmapFactory.decodeFile(filePath.absolutePath)
+                signatureImage.setImageBitmap(myBitmap)
+            }
+        }
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.document_menu, menu)
@@ -103,7 +98,7 @@ class PDFViewerActivity : AppCompatActivity() {
             }
             R.id.action_sign -> {
                 val intent = Intent(this, SignatureActivity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, 1)
             }
         }
         return super.onOptionsItemSelected(item)
