@@ -4,16 +4,13 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.text.TextUtils
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
-import io.github.hyuwah.draggableviewlib.DraggableView
-import io.github.hyuwah.draggableviewlib.setupDraggable
+import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 import java.io.File
 
@@ -35,7 +32,6 @@ class PDFViewerActivity : AppCompatActivity() {
             .setAnimated(true)
             .setStickyMode(DraggableView.Mode.NON_STICKY)
             .build()
-
     }
 
     private fun viewPDF(){
@@ -47,6 +43,7 @@ class PDFViewerActivity : AppCompatActivity() {
                     pdfView.fromUri(selectedPDF)
                         .password(null)
                         .defaultPage(0)
+                        .pages(0)
                         .enableSwipe(true)
                         .swipeHorizontal(false)
                         .enableDoubletap(true)

@@ -2,15 +2,11 @@ package com.app.digitalsignature.ui.signature
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
+import android.graphics.*
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
+import android.os.*
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
@@ -25,7 +21,7 @@ class SignatureActivity : AppCompatActivity() {
     private lateinit var saveSignature: MenuItem
     private lateinit var clearSignature: MenuItem
 
-    private val fileName = String.format("Signature_%d.jpg",System.currentTimeMillis())
+    private val fileName = "Signature"
     private val folderName = "Digital Signature"
     private val directory =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
