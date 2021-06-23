@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_sign"
+        android:id="@+id/action_sign_document"
         android:icon="@drawable/ic_option_sign"
         android:orderInCategory="100"
-        android:title="Sign PDF"
+        android:title="Sign"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_save_document"
         android:icon="@drawable/ic_option_check"
         android:enabled="false"
         android:orderInCategory="100"
-        android:title="Save PDF"
+        android:title="Save"
         app:showAsAction="ifRoom" />
 </menu>

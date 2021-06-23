@@ -63,9 +63,9 @@ class SignatureActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.signature_menu, menu)
         this.mMenu = menu
-        saveSignature = menu.findItem(R.id.action_save)
+        saveSignature = menu.findItem(R.id.action_save_signature)
         saveSignature.icon.alpha = 130
-        clearSignature = menu.findItem(R.id.action_clear)
+        clearSignature = menu.findItem(R.id.action_clear_signature)
         clearSignature.icon.alpha = 130
 
         return true
@@ -78,11 +78,11 @@ class SignatureActivity : AppCompatActivity() {
                 return true
             }
             // clear signature
-            R.id.action_clear -> {
+            R.id.action_clear_signature -> {
                 signaturePad.clear()
             }
             // save signature
-            R.id.action_save -> {
+            R.id.action_save_signature -> {
                 saveSignature()
             }
         }

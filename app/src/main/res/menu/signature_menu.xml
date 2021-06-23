@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_clear"
+        android:id="@+id/action_clear_signature"
         android:enabled="false"
         android:icon="@drawable/ic_option_clear"
         android:orderInCategory="100"
-        android:title="Clear Signature"
+        android:title="Clear"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_save"
+        android:id="@+id/action_save_signature"
         android:enabled="false"
         android:icon="@drawable/ic_option_check"
         android:orderInCategory="100"
-        android:title="Save Signature"
+        android:title="Save"
         app:showAsAction="ifRoom" />
 </menu>
