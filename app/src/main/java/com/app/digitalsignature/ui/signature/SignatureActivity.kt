@@ -93,12 +93,6 @@ class SignatureActivity : AppCompatActivity() {
         val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
 
         if (addJpgSignatureToGallery(signatureBitmap)) {
-//                deleteFile()
-            Toast.makeText(
-                this@SignatureActivity, "The signature is saved successfully",
-                Toast.LENGTH_SHORT
-            ).show()
-
             val intent = Intent()
             intent.putExtra("signatureFileName", "$directory$fileName.png")
             setResult(RESULT_OK, intent)
@@ -177,16 +171,4 @@ class SignatureActivity : AppCompatActivity() {
         super.onBackPressed()
         this.finish()
     }
-
-//    private fun deleteFile(){
-//        val contentUri = "$directory$fileName.png"
-//        val file = File(contentUri)
-//        file.delete()
-//        if (file.exists()) {
-//            file.canonicalFile.delete()
-//            if (file.exists()) {
-//                applicationContext.deleteFile(file.name)
-//            }
-//        }
-//    }
 }

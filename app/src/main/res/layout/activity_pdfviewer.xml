@@ -13,6 +13,11 @@
         android:background="@color/grey_10">
 
         <ImageView
+            android:id="@+id/pdfImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ImageView
             android:id="@+id/signatureImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

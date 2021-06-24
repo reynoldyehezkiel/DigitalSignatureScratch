@@ -5,20 +5,29 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
+import android.graphics.pdf.PdfDocument
+import android.graphics.pdf.PdfDocument.Page
+import android.graphics.pdf.PdfDocument.PageInfo.Builder
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.text.TextUtils
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.graphics.get
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
+import com.itextpdf.text.Document
+import com.itextpdf.text.Image
+import com.itextpdf.text.pdf.PdfWriter
 import com.shockwave.pdfium.PdfiumCore
-import io.github.hyuwah.draggableviewlib.*
+import io.github.hyuwah.draggableviewlib.DraggableListener
+import io.github.hyuwah.draggableviewlib.DraggableView
+import io.github.hyuwah.draggableviewlib.setupDraggable
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 import java.io.File
 import java.io.FileOutputStream
@@ -48,7 +57,7 @@ class PDFViewerActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
-        viewPDF()
+        viewPdf()
 
         signatureImage.setupDraggable()
             .setAnimated(true)
@@ -81,17 +90,6 @@ class PDFViewerActivity : AppCompatActivity() {
         return true
     }
 
-    private fun invokeMenuButton(disableButtonFlag: Boolean) {
-        val saveItem: MenuItem = mMenu.findItem(R.id.action_save_document)
-        saveItem.isEnabled = disableButtonFlag
-        isSigned = disableButtonFlag
-        if (disableButtonFlag) {
-            saveItem.icon.alpha = 255
-        } else {
-            saveItem.icon.alpha = 130
-        }
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
@@ -104,7 +102,7 @@ class PDFViewerActivity : AppCompatActivity() {
                 return true
             }
             R.id.action_save_document -> {
-                savePDF()
+                savePdf()
                 return true
             }
         }
@@ -118,7 +116,7 @@ class PDFViewerActivity : AppCompatActivity() {
                 .setMessage("Want to save your changes to PDF document?")
                 .setPositiveButton(
                     "Save"
-                ) { dialog, which -> savePDF() }
+                ) { dialog, which -> savePdf() }
                 .setNegativeButton(
                     "Exit"
                 ) { dialog, which -> finish() }.show()
@@ -127,7 +125,7 @@ class PDFViewerActivity : AppCompatActivity() {
         }
     }
 
-    private fun viewPDF(){
+    private fun viewPdf(){
         if (intent != null) {
             val viewType = intent.getStringExtra("ViewType")
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
@@ -156,7 +154,28 @@ class PDFViewerActivity : AppCompatActivity() {
         }
     }
 
-    private fun getBitmapFromPDF(pdfUri: Uri?, context: Context): Bitmap? {
+    private fun savePdf() {
+        val pdfBitmap = convertPdfToBitmap(selectedPDF, this)
+        val signedPDF = pdfBitmap?.let { combineTwoBitmap(it,signatureBitmap) }
+        pdfImage.setImageBitmap(pdfBitmap)
+
+        val fileName = "SignedPDF"
+        val folderName = "Digital Signature"
+        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+            .toString() + "/$folderName/"
+
+        val pdf = File(
+            createFolderStorageDir(filePath, folderName),
+            "$fileName.jpg"
+        )
+
+        convertBitmapToPdf(filePath, signedPDF, fileName)
+//        convertBitmapToJpg(signedPDF, pdf)
+//        convertJpgToPdf(directory,fileName)
+//        deleteFile(directory,fileName)
+    }
+
+    private fun convertPdfToBitmap(pdfUri: Uri?, context: Context): Bitmap? {
         val pageNumber = 0
         val pdfiumCore = PdfiumCore(context)
         try {
@@ -167,15 +186,83 @@ class PDFViewerActivity : AppCompatActivity() {
 
             val width = pdfiumCore.getPageWidth(pdfDocument, pageNumber)
             val height = pdfiumCore.getPageHeight(pdfDocument, pageNumber)
+
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
             pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNumber, 0, 0,width, height)
             pdfiumCore.closeDocument(pdfDocument)
+
             return bitmap
         } catch (ex: IOException) {
             ex.printStackTrace()
             return null
         }
+    }
+
+    private fun convertBitmapToPdf(filePath: String, signedPDF: Bitmap?, fileName: String) {
+        val pdfDocument = PdfDocument()
+        val pi = Builder(signedPDF!!.width, signedPDF.height, 1).create()
+
+        val page: Page = pdfDocument.startPage(pi)
+        val canvas: Canvas = page.canvas
+        val paint = Paint()
+        paint.color = Color.parseColor("#FFFFFF")
+        canvas.drawPaint(paint)
+
+        val bitmap = Bitmap.createScaledBitmap(signedPDF,signedPDF.width,signedPDF.height,true)
+        paint.color = Color.BLACK
+        canvas.drawBitmap(bitmap,0f,0f,null)
+
+        pdfDocument.finishPage(page)
+
+        val pdfFile = File(filePath,"$fileName.pdf")
+        try{
+            val fos = FileOutputStream(pdfFile)
+            pdfDocument.writeTo(fos)
+        }catch (ex: IOException){
+            ex.printStackTrace()
+        }
+
+        pdfDocument.close()
+
+    }
+
+    @Throws(IOException::class)
+    private fun convertBitmapToJpg(bitmap: Bitmap?, photo: File?) {
+        val newBitmap = bitmap?.let { Bitmap.createBitmap(it.width, bitmap.height, Bitmap.Config.ARGB_8888) }
+
+        val canvas = newBitmap?.let { Canvas(it) }
+        canvas?.drawColor(Color.WHITE)
+        if (bitmap != null) {
+            canvas?.drawBitmap(bitmap, 0f, 0f, null)
+        }
+
+        val stream: OutputStream = FileOutputStream(photo)
+        newBitmap?.compress(Bitmap.CompressFormat.PNG, 80, stream)
+        stream.close()
+    }
+
+    private fun convertJpgToPdf(directory: String, fileName: String) {
+        val document = Document()
+
+        // Change pdf filename
+        PdfWriter.getInstance(
+            document,
+            FileOutputStream("$directory/$fileName.pdf")
+        )
+
+        document.open()
+
+        val image: Image = Image.getInstance("$directory/$fileName.jpg")
+
+        val scaler: Float = (document.pageSize.width - document.leftMargin()
+                - document.rightMargin() - 0) / image.width * 100
+
+        image.scalePercent(scaler)
+        image.alignment = Image.ALIGN_CENTER or Image.ALIGN_TOP
+
+        document.add(image)
+        document.close()
     }
 
     private fun combineTwoBitmap(pdfBitmap: Bitmap, signatureBitmap: Bitmap): Bitmap? {
@@ -193,23 +280,6 @@ class PDFViewerActivity : AppCompatActivity() {
         return bitmap
     }
 
-    private fun savePDF() {
-        val pdfBitmap = getBitmapFromPDF(selectedPDF, this)
-        val signedPDF = pdfBitmap?.let { combineTwoBitmap(it,signatureBitmap) }
-
-        val fileName = "Result"
-        val folderName = "Digital Signature/SavedPDF"
-        val directory =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-                .toString() + "/$folderName/"
-
-        val pdf = File(
-            createFolderStorageDir(directory, folderName),
-            "$fileName.jpg"
-        )
-        saveBitmapToJPG(signedPDF, pdf)
-    }
-
     private fun createFolderStorageDir(directory: String, folderName: String): File {
         val file = File(directory)
         if (!file.mkdirs()) {
@@ -218,19 +288,27 @@ class PDFViewerActivity : AppCompatActivity() {
         return file
     }
 
-    @Throws(IOException::class)
-    fun saveBitmapToJPG(bitmap: Bitmap?, photo: File?) {
-        val newBitmap = bitmap?.let { Bitmap.createBitmap(it.width, bitmap.height, Bitmap.Config.ARGB_8888) }
-
-        val canvas = newBitmap?.let { Canvas(it) }
-        canvas?.drawColor(Color.WHITE)
-        if (bitmap != null) {
-            canvas?.drawBitmap(bitmap, 0f, 0f, null)
+    private fun deleteFile(directory: String, fileName: String){
+        val contentUri = "$directory$fileName.jpg"
+        val file = File(contentUri)
+        file.delete()
+        if (file.exists()) {
+            file.canonicalFile.delete()
+            if (file.exists()) {
+                applicationContext.deleteFile(file.name)
+            }
         }
+    }
 
-        val stream: OutputStream = FileOutputStream(photo)
-        newBitmap?.compress(Bitmap.CompressFormat.PNG, 80, stream)
-        stream.close()
+    private fun invokeMenuButton(disableButtonFlag: Boolean) {
+        val saveItem: MenuItem = mMenu.findItem(R.id.action_save_document)
+        saveItem.isEnabled = disableButtonFlag
+        isSigned = disableButtonFlag
+        if (disableButtonFlag) {
+            saveItem.icon.alpha = 255
+        } else {
+            saveItem.icon.alpha = 130
+        }
     }
 
 }
