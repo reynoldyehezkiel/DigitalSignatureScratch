@@ -122,7 +122,7 @@ class SignatureActivity : AppCompatActivity() {
 
     //Image Signature
     @Throws(IOException::class)
-    fun saveBitmapToJPG(bitmap: Bitmap, photo: File?) {
+    fun saveBitmapToPNG(bitmap: Bitmap, photo: File?) {
         val newBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(newBitmap)
@@ -141,7 +141,7 @@ class SignatureActivity : AppCompatActivity() {
                 createFolderStorageDir(),
                     "$fileName.png"
             )
-            saveBitmapToJPG(signature, photo)
+            saveBitmapToPNG(signature, photo)
             scanMediaFile(photo)
             result = true
         } catch (e: IOException) {
