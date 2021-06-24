@@ -21,9 +21,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
-import com.itextpdf.text.Document
-import com.itextpdf.text.Image
-import com.itextpdf.text.pdf.PdfWriter
 import com.shockwave.pdfium.PdfiumCore
 import io.github.hyuwah.draggableviewlib.DraggableListener
 import io.github.hyuwah.draggableviewlib.DraggableView
@@ -32,7 +29,6 @@ import kotlinx.android.synthetic.main.activity_pdfviewer.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 
 
 class PDFViewerActivity : AppCompatActivity() {
@@ -170,9 +166,6 @@ class PDFViewerActivity : AppCompatActivity() {
         )
 
         convertBitmapToPdf(filePath, signedPDF, fileName)
-//        convertBitmapToJpg(signedPDF, pdf)
-//        convertJpgToPdf(directory,fileName)
-//        deleteFile(directory,fileName)
     }
 
     private fun convertPdfToBitmap(pdfUri: Uri?, context: Context): Bitmap? {
@@ -224,45 +217,6 @@ class PDFViewerActivity : AppCompatActivity() {
         }
 
         pdfDocument.close()
-
-    }
-
-    @Throws(IOException::class)
-    private fun convertBitmapToJpg(bitmap: Bitmap?, photo: File?) {
-        val newBitmap = bitmap?.let { Bitmap.createBitmap(it.width, bitmap.height, Bitmap.Config.ARGB_8888) }
-
-        val canvas = newBitmap?.let { Canvas(it) }
-        canvas?.drawColor(Color.WHITE)
-        if (bitmap != null) {
-            canvas?.drawBitmap(bitmap, 0f, 0f, null)
-        }
-
-        val stream: OutputStream = FileOutputStream(photo)
-        newBitmap?.compress(Bitmap.CompressFormat.PNG, 80, stream)
-        stream.close()
-    }
-
-    private fun convertJpgToPdf(directory: String, fileName: String) {
-        val document = Document()
-
-        // Change pdf filename
-        PdfWriter.getInstance(
-            document,
-            FileOutputStream("$directory/$fileName.pdf")
-        )
-
-        document.open()
-
-        val image: Image = Image.getInstance("$directory/$fileName.jpg")
-
-        val scaler: Float = (document.pageSize.width - document.leftMargin()
-                - document.rightMargin() - 0) / image.width * 100
-
-        image.scalePercent(scaler)
-        image.alignment = Image.ALIGN_CENTER or Image.ALIGN_TOP
-
-        document.add(image)
-        document.close()
     }
 
     private fun combineTwoBitmap(pdfBitmap: Bitmap, signatureBitmap: Bitmap): Bitmap? {
@@ -286,18 +240,6 @@ class PDFViewerActivity : AppCompatActivity() {
             Log.e(folderName, "Directory not created")
         }
         return file
-    }
-
-    private fun deleteFile(directory: String, fileName: String){
-        val contentUri = "$directory$fileName.jpg"
-        val file = File(contentUri)
-        file.delete()
-        if (file.exists()) {
-            file.canonicalFile.delete()
-            if (file.exists()) {
-                applicationContext.deleteFile(file.name)
-            }
-        }
     }
 
     private fun invokeMenuButton(disableButtonFlag: Boolean) {
