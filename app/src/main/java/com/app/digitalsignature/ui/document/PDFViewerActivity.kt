@@ -36,6 +36,7 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var mMenu: Menu
     private lateinit var selectedPDF: Uri
     private lateinit var signatureBitmap: Bitmap
+    private lateinit var pdfBitmap: Bitmap
     private var isSigned: Boolean = false
 
     private var signatureDragListener = object : DraggableListener {
@@ -62,6 +63,7 @@ class PDFViewerActivity : AppCompatActivity() {
             .build()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1) {
@@ -112,16 +114,16 @@ class PDFViewerActivity : AppCompatActivity() {
                 .setMessage("Want to save your changes to PDF document?")
                 .setPositiveButton(
                     "Save"
-                ) { dialog, which -> savePdf() }
+                ) { _, _ -> savePdf() }
                 .setNegativeButton(
                     "Exit"
-                ) { dialog, which -> finish() }.show()
+                ) { _, _ -> finish() }.show()
         } else {
             finish()
         }
     }
 
-    private fun viewPdf(){
+    private fun viewPdf() {
         if (intent != null) {
             val viewType = intent.getStringExtra("ViewType")
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
@@ -135,7 +137,7 @@ class PDFViewerActivity : AppCompatActivity() {
                         .swipeHorizontal(false)
                         .enableDoubletap(true)
 //                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
-                        .onPageError { page, t ->
+                        .onPageError { page, _ ->
                             Toast.makeText(
                                 this,
                                 "Error while opening the page$page",
@@ -151,20 +153,20 @@ class PDFViewerActivity : AppCompatActivity() {
     }
 
     private fun savePdf() {
-        val pdfBitmap = convertPdfToBitmap(selectedPDF, this)
-        val signedPDF = pdfBitmap?.let { combineTwoBitmap(it,signatureBitmap) }
-        pdfImage.setImageBitmap(pdfBitmap)
+        pdfBitmap = convertPdfToBitmap(selectedPDF, this)!!
+        val signedPDF = combineTwoBitmap(pdfBitmap, signatureBitmap)
 
         val fileName = "SignedPDF"
         val folderName = "Digital Signature"
-        val filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-            .toString() + "/$folderName/"
+        val filePath =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+                .toString() + "/$folderName/"
 
-        val pdf = File(
-            createFolderStorageDir(filePath, folderName),
-            "$fileName.jpg"
-        )
-
+//        val pdf = File(
+//            createFolderStorageDir(filePath, folderName),
+//            "$fileName.jpg"
+//        )
+        createFolderStorageDir(filePath, folderName)
         convertBitmapToPdf(filePath, signedPDF, fileName)
     }
 
@@ -182,7 +184,7 @@ class PDFViewerActivity : AppCompatActivity() {
 
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
-            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNumber, 0, 0,width, height)
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNumber, 0, 0, width, height)
             pdfiumCore.closeDocument(pdfDocument)
 
             return bitmap
@@ -202,17 +204,17 @@ class PDFViewerActivity : AppCompatActivity() {
         paint.color = Color.parseColor("#FFFFFF")
         canvas.drawPaint(paint)
 
-        val bitmap = Bitmap.createScaledBitmap(signedPDF,signedPDF.width,signedPDF.height,true)
+        val bitmap = Bitmap.createScaledBitmap(signedPDF, signedPDF.width, signedPDF.height, true)
         paint.color = Color.BLACK
-        canvas.drawBitmap(bitmap,0f,0f,null)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
 
         pdfDocument.finishPage(page)
 
-        val pdfFile = File(filePath,"$fileName.pdf")
-        try{
+        val pdfFile = File(filePath, "$fileName.pdf")
+        try {
             val fos = FileOutputStream(pdfFile)
             pdfDocument.writeTo(fos)
-        }catch (ex: IOException){
+        } catch (ex: IOException) {
             ex.printStackTrace()
         }
 
@@ -222,8 +224,8 @@ class PDFViewerActivity : AppCompatActivity() {
     private fun combineTwoBitmap(pdfBitmap: Bitmap, signatureBitmap: Bitmap): Bitmap? {
         val bitmap = Bitmap.createBitmap(pdfBitmap.width, pdfBitmap.height, pdfBitmap.config)
         val canvas = Canvas(bitmap)
-
         canvas.drawBitmap(pdfBitmap, Matrix(), null)
+
         val left = signatureImage.x
         val top = signatureImage.y
         canvas.drawBitmap(signatureBitmap, left, top, null)
