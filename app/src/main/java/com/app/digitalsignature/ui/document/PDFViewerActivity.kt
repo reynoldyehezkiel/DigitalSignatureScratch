@@ -2,33 +2,26 @@ package com.app.digitalsignature.ui.document
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfDocument.Page
 import android.graphics.pdf.PdfDocument.PageInfo.Builder
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.ParcelFileDescriptor
+import android.os.*
 import android.text.TextUtils
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
 import com.shockwave.pdfium.PdfiumCore
-import io.github.hyuwah.draggableviewlib.DraggableListener
-import io.github.hyuwah.draggableviewlib.DraggableView
-import io.github.hyuwah.draggableviewlib.setupDraggable
+import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.PdfWriter
 
 
 class PDFViewerActivity : AppCompatActivity() {
@@ -38,6 +31,7 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var signatureBitmap: Bitmap
     private lateinit var pdfBitmap: Bitmap
     private var isSigned: Boolean = false
+    private lateinit var signedPDF: Bitmap
 
     private var signatureDragListener = object : DraggableListener {
         @SuppressLint("SetTextI18n")
@@ -154,7 +148,7 @@ class PDFViewerActivity : AppCompatActivity() {
 
     private fun savePdf() {
         pdfBitmap = convertPdfToBitmap(selectedPDF, this)!!
-        val signedPDF = combineTwoBitmap(pdfBitmap, signatureBitmap)
+        signedPDF = combineTwoBitmap(pdfBitmap, signatureBitmap)
 
         val fileName = "SignedPDF"
         val folderName = "Digital Signature"
@@ -162,12 +156,73 @@ class PDFViewerActivity : AppCompatActivity() {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
                 .toString() + "/$folderName/"
 
-//        val pdf = File(
-//            createFolderStorageDir(filePath, folderName),
-//            "$fileName.jpg"
-//        )
-        createFolderStorageDir(filePath, folderName)
-        convertBitmapToPdf(filePath, signedPDF, fileName)
+        val pdf = File(
+            createFolderStorageDir(filePath, folderName),
+            "$fileName.jpg"
+        )
+
+        /*
+            method 1
+            convert bitmap to jpg,
+            then convert jpg to pdf
+        */
+        convertBitmapToJpg(signedPDF, pdf)
+        convertJpgToPdf(filePath,fileName)
+//        deleteFile(filePath,fileName)
+
+        /*
+            method 2
+            convert bitmap to pdf
+        */
+//        createFolderStorageDir(filePath, folderName)
+//        convertBitmapToPdf(filePath, signedPDF, fileName)
+    }
+
+    private fun convertBitmapToJpg(bitmap: Bitmap, photo: File?) {
+        val newBitmap = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(newBitmap)
+        canvas.drawColor(Color.WHITE)
+        canvas.drawBitmap(bitmap, 0f, 0f, null)
+
+        val stream: OutputStream = FileOutputStream(photo)
+        newBitmap.compress(Bitmap.CompressFormat.PNG, 80, stream)
+        stream.close()
+    }
+
+    private fun convertJpgToPdf(directory: String, fileName: String) {
+        val document = Document()
+
+        // Change pdf filename
+        PdfWriter.getInstance(
+            document,
+            FileOutputStream("$directory/$fileName.pdf")
+        )
+
+        document.open()
+
+        val image: Image = Image.getInstance("$directory/$fileName.jpg")
+
+//        val scaler: Float = (document.pageSize.width - document.leftMargin()
+//                - document.rightMargin() - 0) / image.width * 100
+
+//        image.scalePercent(scaler)
+//        image.alignment = Image.ALIGN_CENTER or Image.ALIGN_TOP
+
+        document.add(image)
+        document.close()
+    }
+
+    private fun deleteFile(directory: String, fileName: String){
+        val contentUri = "$directory$fileName.jpg"
+        val file = File(contentUri)
+        file.delete()
+        if (file.exists()) {
+            file.canonicalFile.delete()
+            if (file.exists()) {
+                applicationContext.deleteFile(file.name)
+            }
+        }
     }
 
     private fun convertPdfToBitmap(pdfUri: Uri?, context: Context): Bitmap? {
@@ -179,8 +234,8 @@ class PDFViewerActivity : AppCompatActivity() {
             val pdfDocument = pdfiumCore.newDocument(fd)
             pdfiumCore.openPage(pdfDocument, pageNumber)
 
-            val width = pdfiumCore.getPageWidth(pdfDocument, pageNumber)
-            val height = pdfiumCore.getPageHeight(pdfDocument, pageNumber)
+            val width = pdfiumCore.getPageWidth(pdfDocument, pageNumber)/3
+            val height = pdfiumCore.getPageHeight(pdfDocument, pageNumber)/3
 
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
@@ -221,7 +276,7 @@ class PDFViewerActivity : AppCompatActivity() {
         pdfDocument.close()
     }
 
-    private fun combineTwoBitmap(pdfBitmap: Bitmap, signatureBitmap: Bitmap): Bitmap? {
+    private fun combineTwoBitmap(pdfBitmap: Bitmap, signatureBitmap: Bitmap): Bitmap {
         val bitmap = Bitmap.createBitmap(pdfBitmap.width, pdfBitmap.height, pdfBitmap.config)
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(pdfBitmap, Matrix(), null)
