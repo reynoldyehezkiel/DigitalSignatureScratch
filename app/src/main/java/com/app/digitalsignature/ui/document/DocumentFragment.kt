@@ -44,11 +44,11 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
 
     private fun setListener(){
         binding.addFile.setOnClickListener {
-            val pdfIntent = Intent(Intent.ACTION_GET_CONTENT)
-            pdfIntent.type = "application/pdf"
-            pdfIntent.addCategory(Intent.CATEGORY_OPENABLE)
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "application/pdf"
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
             startActivityForResult(
-                Intent.createChooser(pdfIntent,"Select PDF"),
+                Intent.createChooser(intent,"Select PDF"),
                 PICK_PDF_CODE
             )
         }

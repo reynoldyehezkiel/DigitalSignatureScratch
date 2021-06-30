@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
 }
 
-androidExtensions{
+androidExtensions {
     experimental = true
 }
 
@@ -74,8 +74,9 @@ dependencies {
     //File Picker
     implementation 'com.linkdev.filepicker:filepicker:1.0.1'
 
-    //PDF Converter
+    //PDF Editor
     implementation 'com.itextpdf:itextg:5.5.10'
+    implementation 'com.tom_roush:pdfbox-android:1.8.10.3'
 
     //PDF Viewer
     implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1'

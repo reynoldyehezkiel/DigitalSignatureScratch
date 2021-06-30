@@ -28,9 +28,9 @@ class SignatureFragment : Fragment(R.layout.fragment_signature) {
         setListener()
     }
 
-    private fun setListener(){
+    private fun setListener() {
         binding.createSignature.setOnClickListener {
-            val intent = Intent (activity, SignatureActivity::class.java)
+            val intent = Intent(activity, SignatureActivity::class.java)
             startActivity(intent)
         }
     }
