@@ -1,2 +1,3 @@
 rootProject.name = "DigitalSignature"
 include ':app'
+include ':pdf-signer'

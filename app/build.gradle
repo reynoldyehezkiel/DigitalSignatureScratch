@@ -47,6 +47,20 @@ android {
     buildFeatures {
         viewBinding true
     }
+    configurations {
+        all { // You should exclude one of them not both of them
+            exclude group: "org.bouncycastle", module: "bcpkix-jdk15to18"
+            exclude group: "org.bouncycastle", module: "bcprov-jdk15to18"
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
@@ -75,7 +89,7 @@ dependencies {
     implementation 'com.linkdev.filepicker:filepicker:1.0.1'
 
     //PDF Editor
-    implementation 'com.itextpdf:itextg:5.5.10'
+//    implementation 'com.itextpdf:itextg:5.5.10'
     implementation 'com.tom_roush:pdfbox-android:1.8.10.3'
 
     //PDF Viewer
@@ -83,4 +97,7 @@ dependencies {
 
     //Drag & Drop
     implementation 'com.github.hyuwah:DraggableView:1.0.0'
+
+    implementation project(":pdf-signer")
+    implementation 'com.github.castorflex.verticalviewpager:library:19.0.1'
 }

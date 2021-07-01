@@ -1,5 +1,7 @@
 package com.app.digitalsignature.ui.document
 
+//import com.itextpdf.text.*
+//import com.itextpdf.text.pdf.*
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.*
@@ -12,15 +14,14 @@ import android.os.*
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
-import com.itextpdf.text.*
-import com.itextpdf.text.pdf.*
+import com.benzveen.pdfdigitalsignature.DigitalSignatureActivity
+import com.benzveen.pdfdigitalsignature.Document.PDSViewPager
+import com.benzveen.pdfdigitalsignature.PDF.PDSPDFDocument
+import com.benzveen.pdfdigitalsignature.imageviewer.PDSPageAdapter
 import com.shockwave.pdfium.PdfiumCore
 import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
@@ -36,6 +37,8 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var signedPDF: Bitmap
     private lateinit var signatureFile: String
     private lateinit var signaturePath: File
+    private lateinit var doc: PDSPDFDocument
+    private lateinit var pdfView: PDSViewPager
     private val savedFile = "SignedPDF"
     private val savedFolder = "Digital Signature"
     private val savedPath =
@@ -46,34 +49,46 @@ class PDFViewerActivity : AppCompatActivity() {
     private var layoutHeight = 0
     private var pdfWidth = 0
     private var pdfHeight = 0
+    private lateinit var mCtx: DigitalSignatureActivity
+
+    companion object{
+        private const val READ_REQUEST_CODE = 42
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
 
-        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
-        val vto = layout.viewTreeObserver
-        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-            @SuppressLint("SetTextI18n")
-            override fun onGlobalLayout() {
-                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                layoutWidth = layout.measuredWidth
-                layoutHeight = layout.measuredHeight
+        pdfView = viewPager
 
-                tvLayoutWidth.text = "Layout Width: $layoutWidth"
-                tvLayoutHeight.text = "Layout Height: $layoutHeight"
-            }
-        })
+//        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
+//        val vto = layout.viewTreeObserver
+//        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+//            @SuppressLint("SetTextI18n")
+//            override fun onGlobalLayout() {
+//                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                layoutWidth = layout.measuredWidth
+//                layoutHeight = layout.measuredHeight
+//
+//                tvLayoutWidth.text = "Layout Width: $layoutWidth"
+//                tvLayoutHeight.text = "Layout Height: $layoutHeight"
+//            }
+//        })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
-        viewPdf()
+//        viewPdf()
 
-        signatureImage.setupDraggable()
-            .setAnimated(true)
-            .setStickyMode(DraggableView.Mode.NON_STICKY)
-            .build()
+        val message = intent.getStringExtra("ActivityAction")
+        if (message == "FileSearch") {
+            performFileSearch()
+        }
+
+//        signatureImage.setupDraggable()
+//            .setAnimated(true)
+//            .setStickyMode(DraggableView.Mode.NON_STICKY)
+//            .build()
     }
 
     @SuppressLint("SetTextI18n")
@@ -91,9 +106,20 @@ class PDFViewerActivity : AppCompatActivity() {
                     signatureBitmap.height / 4,
                     false
                 )
-                signatureImage.setImageBitmap(signatureBitmap)
+//                signatureImage.setImageBitmap(signatureBitmap)
 
                 invokeMenuButton(true)
+            }
+        }
+
+        if (requestCode == READ_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    selectedPdf = data.data!!
+                    DigitalSignatureActivity().openPDFViewer(selectedPdf)
+                }
+            } else {
+                finish()
             }
         }
     }
@@ -143,30 +169,55 @@ class PDFViewerActivity : AppCompatActivity() {
         }
     }
 
+    private fun openPDFViewer(selectedPdf: Uri) {
+        try {
+            val document = PDSPDFDocument(this, selectedPdf)
+            document.open()
+            this.doc = document
+            val imageAdapter = PDSPageAdapter(supportFragmentManager, document)
+            pdfView.adapter = imageAdapter
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(
+                this@PDFViewerActivity,
+                "Cannot open PDF, either PDF is corrupted or password protected",
+                Toast.LENGTH_LONG
+            ).show()
+            finish()
+        }
+    }
+
+    private fun performFileSearch() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "image/jpeg"
+        val mimetypes = arrayOf("application/pdf")
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes)
+        startActivityForResult(intent, READ_REQUEST_CODE)
+    }
+
     private fun viewPdf() {
         if (intent != null) {
             val viewType = intent.getStringExtra("ViewType")
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
                 if (viewType.equals("storage")) {
-                    selectedPdf = Uri.parse((intent.getStringExtra("FileUri")))
-                    pdfView.fromUri(selectedPdf)
-                        .password(null)
-                        .defaultPage(0)
-                        .pages(0)
-                        .enableSwipe(true)
-                        .swipeHorizontal(false)
-                        .enableDoubletap(true)
-//                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
-                        .onPageError { page, _ ->
-                            Toast.makeText(
-                                this,
-                                "Error while opening the page$page",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                        }.onTap { false }
-                        .enableAnnotationRendering(true)
-                        .load()
+//                    pdfView.fromUri(selectedPdf)
+//                        .password(null)
+//                        .defaultPage(0)
+//                        .pages(0)
+//                        .enableSwipe(true)
+//                        .swipeHorizontal(false)
+//                        .enableDoubletap(true)
+////                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
+//                        .onPageError { page, _ ->
+//                            Toast.makeText(
+//                                this,
+//                                "Error while opening the page$page",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//
+//                        }.onTap { false }
+//                        .enableAnnotationRendering(true)
+//                        .load()
                 }
             }
         }
@@ -183,7 +234,7 @@ class PDFViewerActivity : AppCompatActivity() {
         */
         val file = File(createFolderStorageDir(), "$savedFile.jpg")
         convertBitmapToJpg(file)
-        convertJpgToPdf()
+//        convertJpgToPdf()
 //        deleteFile()
 
         /*
@@ -207,23 +258,23 @@ class PDFViewerActivity : AppCompatActivity() {
         stream.close()
     }
 
-    private fun convertJpgToPdf() {
-        val document = Document()
-
-        // Change pdf filename
-        PdfWriter.getInstance(document, FileOutputStream("$savedPath/$savedFile.pdf"))
-
-        document.open()
-
-        val image: Image = Image.getInstance("$savedPath/$savedFile.jpg")
-
-        val scaler: Float =
-            (document.pageSize.width - document.leftMargin() - document.rightMargin() - 0) / image.width * 100
-        image.scalePercent(scaler)
-
-        document.add(image)
-        document.close()
-    }
+//    private fun convertJpgToPdf() {
+//        val document = Document()
+//
+//        // Change pdf filename
+//        PdfWriter.getInstance(document, FileOutputStream("$savedPath/$savedFile.pdf"))
+//
+//        document.open()
+//
+//        val image: Image = Image.getInstance("$savedPath/$savedFile.jpg")
+//
+//        val scaler: Float =
+//            (document.pageSize.width - document.leftMargin() - document.rightMargin() - 0) / image.width * 100
+//        image.scalePercent(scaler)
+//
+//        document.add(image)
+//        document.close()
+//    }
 
     private fun convertPdfToBitmap(context: Context): Bitmap? {
         val pageNumber = 0
@@ -240,8 +291,8 @@ class PDFViewerActivity : AppCompatActivity() {
             pdfWidth = width
             pdfHeight = height
 
-            tvPdfWidth.text = pdfWidth.toString()
-            tvPdfHeight.text = pdfHeight.toString()
+//            tvPdfWidth.text = pdfWidth.toString()
+//            tvPdfHeight.text = pdfHeight.toString()
 
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
@@ -287,15 +338,15 @@ class PDFViewerActivity : AppCompatActivity() {
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(pdfBitmap, Matrix(), null)
 
-        val left = signatureImage.x * (pdfWidth/layoutWidth)
-        val top = signatureImage.y * (pdfHeight/layoutHeight)
+//        val left = signatureImage.x * (pdfWidth/layoutWidth)
+//        val top = signatureImage.y * (pdfHeight/layoutHeight)
         signatureBitmap = Bitmap.createScaledBitmap(
             signatureBitmap,
             signatureBitmap.width * 3,
             signatureBitmap.height * 3,
             false
         )
-        canvas.drawBitmap(signatureBitmap, left, top, null)
+//        canvas.drawBitmap(signatureBitmap, left, top, null)
 
         pdfBitmap.recycle()
         signatureBitmap.recycle()
