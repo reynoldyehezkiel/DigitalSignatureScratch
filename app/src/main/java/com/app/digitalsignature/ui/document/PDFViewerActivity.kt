@@ -1,14 +1,9 @@
 package com.app.digitalsignature.ui.document
 
-//import com.itextpdf.text.*
-//import com.itextpdf.text.pdf.*
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.*
 import android.graphics.*
-import android.graphics.pdf.PdfDocument
-import android.graphics.pdf.PdfDocument.Page
-import android.graphics.pdf.PdfDocument.PageInfo.Builder
 import android.net.Uri
 import android.os.*
 import android.text.TextUtils
@@ -22,6 +17,8 @@ import com.benzveen.pdfdigitalsignature.DigitalSignatureActivity
 import com.benzveen.pdfdigitalsignature.Document.PDSViewPager
 import com.benzveen.pdfdigitalsignature.PDF.PDSPDFDocument
 import com.benzveen.pdfdigitalsignature.imageviewer.PDSPageAdapter
+//import com.itextpdf.text.*
+//import com.itextpdf.text.pdf.*
 import com.shockwave.pdfium.PdfiumCore
 import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
@@ -39,6 +36,7 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var signaturePath: File
     private lateinit var doc: PDSPDFDocument
     private lateinit var pdfView: PDSViewPager
+    private lateinit var imageAdapter: PDSPageAdapter
     private val savedFile = "SignedPDF"
     private val savedFolder = "Digital Signature"
     private val savedPath =
@@ -51,7 +49,7 @@ class PDFViewerActivity : AppCompatActivity() {
     private var pdfHeight = 0
     private lateinit var mCtx: DigitalSignatureActivity
 
-    companion object{
+    companion object {
         private const val READ_REQUEST_CODE = 42
     }
 
@@ -59,7 +57,7 @@ class PDFViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
 
-        pdfView = viewPager
+        pdfView = findViewById(R.id.viewPager)
 
 //        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
 //        val vto = layout.viewTreeObserver
@@ -91,7 +89,6 @@ class PDFViewerActivity : AppCompatActivity() {
 //            .build()
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1) {
@@ -116,7 +113,7 @@ class PDFViewerActivity : AppCompatActivity() {
             if (resultCode == RESULT_OK) {
                 if (data != null) {
                     selectedPdf = data.data!!
-                    DigitalSignatureActivity().openPDFViewer(selectedPdf)
+                    openPDFViewer(selectedPdf)
                 }
             } else {
                 finish()
@@ -170,21 +167,31 @@ class PDFViewerActivity : AppCompatActivity() {
     }
 
     private fun openPDFViewer(selectedPdf: Uri) {
-        try {
-            val document = PDSPDFDocument(this, selectedPdf)
-            document.open()
-            this.doc = document
-            val imageAdapter = PDSPageAdapter(supportFragmentManager, document)
-            pdfView.adapter = imageAdapter
-        } catch (e: Exception) {
-            e.printStackTrace()
+        if(!Uri.EMPTY.equals(selectedPdf)){
+            try {
+                val document = PDSPDFDocument(this, selectedPdf)
+                document.open()
+                this.doc = document
+                imageAdapter = PDSPageAdapter(supportFragmentManager, document)
+
+                pdfView.adapter = imageAdapter
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(
+                    this@PDFViewerActivity,
+                    "Cannot open PDF, either PDF is corrupted or password protected",
+                    Toast.LENGTH_LONG
+                ).show()
+                finish()
+            }
+        }else{
             Toast.makeText(
                 this@PDFViewerActivity,
-                "Cannot open PDF, either PDF is corrupted or password protected",
-                Toast.LENGTH_LONG
+                "Uri is empty!",
+                Toast.LENGTH_SHORT
             ).show()
-            finish()
         }
+
     }
 
     private fun performFileSearch() {
@@ -258,7 +265,7 @@ class PDFViewerActivity : AppCompatActivity() {
         stream.close()
     }
 
-//    private fun convertJpgToPdf() {
+    private fun convertJpgToPdf() {
 //        val document = Document()
 //
 //        // Change pdf filename
@@ -274,7 +281,7 @@ class PDFViewerActivity : AppCompatActivity() {
 //
 //        document.add(image)
 //        document.close()
-//    }
+    }
 
     private fun convertPdfToBitmap(context: Context): Bitmap? {
         val pageNumber = 0
@@ -307,30 +314,30 @@ class PDFViewerActivity : AppCompatActivity() {
     }
 
     private fun convertBitmapToPdf() {
-        val pdfDocument = PdfDocument()
-        val pi = Builder(signedPDF.width, signedPDF.height, 1).create()
-
-        val page: Page = pdfDocument.startPage(pi)
-        val canvas: Canvas = page.canvas
-        val paint = Paint()
-        paint.color = Color.parseColor("#FFFFFF")
-        canvas.drawPaint(paint)
-
-        val bitmap = Bitmap.createScaledBitmap(signedPDF, signedPDF.width, signedPDF.height, true)
-        paint.color = Color.BLACK
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
-
-        pdfDocument.finishPage(page)
-
-        val pdfFile = File(savedPath, "$savedFile.pdf")
-        try {
-            val fos = FileOutputStream(pdfFile)
-            pdfDocument.writeTo(fos)
-        } catch (ex: IOException) {
-            ex.printStackTrace()
-        }
-
-        pdfDocument.close()
+//        val pdfDocument = PdfDocument()
+//        val pi = Builder(signedPDF.width, signedPDF.height, 1).create()
+//
+//        val page: Page = pdfDocument.startPage(pi)
+//        val canvas: Canvas = page.canvas
+//        val paint = Paint()
+//        paint.color = Color.parseColor("#FFFFFF")
+//        canvas.drawPaint(paint)
+//
+//        val bitmap = Bitmap.createScaledBitmap(signedPDF, signedPDF.width, signedPDF.height, true)
+//        paint.color = Color.BLACK
+//        canvas.drawBitmap(bitmap, 0f, 0f, null)
+//
+//        pdfDocument.finishPage(page)
+//
+//        val pdfFile = File(savedPath, "$savedFile.pdf")
+//        try {
+//            val fos = FileOutputStream(pdfFile)
+//            pdfDocument.writeTo(fos)
+//        } catch (ex: IOException) {
+//            ex.printStackTrace()
+//        }
+//
+//        pdfDocument.close()
     }
 
     private fun combineTwoBitmap(): Bitmap {

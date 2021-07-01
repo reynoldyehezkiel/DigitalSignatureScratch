@@ -22,4 +22,11 @@
 
     <include layout="@layout/content_main" />
 
+    <Button
+        android:id="@+id/openPdf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center"
+        android:text="Choose File"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
