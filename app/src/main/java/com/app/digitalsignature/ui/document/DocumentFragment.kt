@@ -53,14 +53,6 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
                 PICK_PDF_CODE
             )
         }
-//        binding.addFile.setOnClickListener {
-//            val intent = Intent(
-//                activity?.applicationContext,
-//                PDFViewerActivity::class.java
-//            )
-//            intent.putExtra("ActivityAction", "FileSearch")
-//            startActivityForResult(intent, PICK_PDF_CODE)
-//        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
