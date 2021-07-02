@@ -5,21 +5,18 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.*
 import androidx.core.app.ActivityCompat
-import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.*
 import com.app.digitalsignature.databinding.ActivityMainBinding
 import com.app.digitalsignature.ui.document.PDFViewerActivity
-import com.benzveen.pdfdigitalsignature.Adapter.MainRecycleViewAdapter
+import com.benzveen.pdfdigitalsignature.DigitalSignatureActivity
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import java.io.File
-import java.io.IOException
 import java.util.*
 
 class MainActivity : AppCompatActivity() {

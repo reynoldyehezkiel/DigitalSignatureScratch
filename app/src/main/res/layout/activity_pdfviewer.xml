@@ -1,77 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_pdfviewer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_10"
     tools:context=".ui.document.PDFViewerActivity">
 
-<!--    <com.github.barteksc.pdfviewer.PDFView-->
-<!--        android:id="@+id/pdfView"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:background="@color/grey_10">-->
-<!--    </com.github.barteksc.pdfviewer.PDFView>-->
-
-    <FrameLayout
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/grey_10">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.benzveen.pdfdigitalsignature.Document.PDSViewPager
-                android:id="@+id/viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </RelativeLayout>
-
-<!--    <ImageView-->
-<!--        android:id="@+id/signatureImage"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_centerHorizontal="true"-->
-<!--        android:layout_centerVertical="true"-->
-<!--        android:background="@drawable/borderline"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tvLayoutWidth"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tvLayoutHeight"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/tvLayoutWidth"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tvPdfWidth"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/tvLayoutHeight"-->
-<!--        android:layout_marginTop="15dp"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tvPdfHeight"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@id/tvPdfWidth"/>-->
-
-        <ProgressBar
-            android:id="@+id/savingProgress"
-            style="?android:attr/progressBarStyle"
+        <ImageView
+            android:id="@+id/signatureImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:visibility="invisible" />
-    </FrameLayout>
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/borderline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/tvLayoutWidth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvLayoutHeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvLayoutWidth"/>
+
+        <TextView
+            android:id="@+id/tvPdfWidth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvLayoutHeight"
+            android:layout_marginTop="15dp"/>
+
+        <TextView
+            android:id="@+id/tvPdfHeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+        android:layout_below="@id/tvPdfWidth"/>
+
+    </com.github.barteksc.pdfviewer.PDFView>
+
+</LinearLayout>

@@ -24,7 +24,7 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
     private var pickFilesFactory: IPickFilesFactory? = null
 
     companion object {
-        private const val PICK_PDF_CODE = 43
+        private const val PICK_PDF_CODE = 100
     }
 
     override fun onCreateView(
@@ -44,37 +44,37 @@ class DocumentFragment : Fragment(R.layout.fragment_document) {
     }
 
     private fun setListener() {
-//        binding.addFile.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_GET_CONTENT)
-//            intent.type = "application/pdf"
-//            intent.addCategory(Intent.CATEGORY_OPENABLE)
-//            startActivityForResult(
-//                Intent.createChooser(intent, "Select PDF"),
-//                PICK_PDF_CODE
-//            )
-//        }
         binding.addFile.setOnClickListener {
-            val intent = Intent(
-                activity?.applicationContext,
-                PDFViewerActivity::class.java
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "application/pdf"
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            startActivityForResult(
+                Intent.createChooser(intent, "Select PDF"),
+                PICK_PDF_CODE
             )
-            intent.putExtra("ActivityAction", "FileSearch")
-            startActivityForResult(intent, PICK_PDF_CODE)
         }
+//        binding.addFile.setOnClickListener {
+//            val intent = Intent(
+//                activity?.applicationContext,
+//                PDFViewerActivity::class.java
+//            )
+//            intent.putExtra("ActivityAction", "FileSearch")
+//            startActivityForResult(intent, PICK_PDF_CODE)
+//        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         pickFilesFactory?.handleActivityResult(requestCode, resultCode, data, pickFilesCallback)
 
-//        if (requestCode == PICK_PDF_CODE && resultCode == Activity.RESULT_OK && data != null) {
-//            val selectedPDF = data.data
-//
-//            val intent = Intent(activity, PDFViewerActivity::class.java)
-//            intent.putExtra("ViewType", "storage")
-//            intent.putExtra("FileUri", selectedPDF.toString())
-//            startActivity(intent)
-//        }
+        if (requestCode == PICK_PDF_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedPDF = data.data
+
+            val intent = Intent(activity, PDFViewerActivity::class.java)
+            intent.putExtra("ViewType", "storage")
+            intent.putExtra("FileUri", selectedPDF.toString())
+            startActivity(intent)
+        }
     }
 
     private val pickFilesCallback = object :

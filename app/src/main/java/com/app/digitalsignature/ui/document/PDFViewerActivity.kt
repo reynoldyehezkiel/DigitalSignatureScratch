@@ -1,26 +1,35 @@
 package com.app.digitalsignature.ui.document
 
+//import com.itextpdf.text.*
+//import com.itextpdf.text.pdf.*
+
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.*
+import android.content.Context
+import android.content.Intent
 import android.graphics.*
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Environment
+import android.os.ParcelFileDescriptor
 import android.text.TextUtils
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewTreeObserver
+import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
-import com.benzveen.pdfdigitalsignature.DigitalSignatureActivity
-import com.benzveen.pdfdigitalsignature.Document.PDSViewPager
-import com.benzveen.pdfdigitalsignature.PDF.PDSPDFDocument
-import com.benzveen.pdfdigitalsignature.imageviewer.PDSPageAdapter
-//import com.itextpdf.text.*
-//import com.itextpdf.text.pdf.*
 import com.shockwave.pdfium.PdfiumCore
-import io.github.hyuwah.draggableviewlib.*
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.pdmodel.PDPage
+import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
+import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
+import io.github.hyuwah.draggableviewlib.DraggableView
+import io.github.hyuwah.draggableviewlib.setupDraggable
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 import java.io.*
 
@@ -34,20 +43,24 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var signedPDF: Bitmap
     private lateinit var signatureFile: String
     private lateinit var signaturePath: File
-    private lateinit var doc: PDSPDFDocument
-    private lateinit var pdfView: PDSViewPager
-    private lateinit var imageAdapter: PDSPageAdapter
+//    private lateinit var mDocument: PDSPDFDocument
+//    private lateinit var pdfView: PDSViewPager
+//    private lateinit var imageAdapter: PDSPageAdapter
+//    private val mUIElemsHandler = UIElementsHandler(this)
+
     private val savedFile = "SignedPDF"
     private val savedFolder = "Digital Signature"
     private val savedPath =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
             .toString() + "/$savedFolder/"
+
     private var isSigned: Boolean = false
+    private var mVisibleWindowHt = 0
+    private var mFirstTap = true
     private var layoutWidth = 0
     private var layoutHeight = 0
     private var pdfWidth = 0
     private var pdfHeight = 0
-    private lateinit var mCtx: DigitalSignatureActivity
 
     companion object {
         private const val READ_REQUEST_CODE = 42
@@ -57,36 +70,36 @@ class PDFViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
 
-        pdfView = findViewById(R.id.viewPager)
+//        pdfView = findViewById(R.id.viewPager)
 
-//        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
-//        val vto = layout.viewTreeObserver
-//        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-//            @SuppressLint("SetTextI18n")
-//            override fun onGlobalLayout() {
-//                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
-//                layoutWidth = layout.measuredWidth
-//                layoutHeight = layout.measuredHeight
-//
-//                tvLayoutWidth.text = "Layout Width: $layoutWidth"
-//                tvLayoutHeight.text = "Layout Height: $layoutHeight"
-//            }
-//        })
+        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
+        val vto = layout.viewTreeObserver
+        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            @SuppressLint("SetTextI18n")
+            override fun onGlobalLayout() {
+                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                layoutWidth = layout.measuredWidth
+                layoutHeight = layout.measuredHeight
+
+                tvLayoutWidth.text = "Layout Width: $layoutWidth"
+                tvLayoutHeight.text = "Layout Height: $layoutHeight"
+            }
+        })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
-//        viewPdf()
+        viewPdf()
 
-        val message = intent.getStringExtra("ActivityAction")
-        if (message == "FileSearch") {
-            performFileSearch()
-        }
+//        val message = intent.getStringExtra("ActivityAction")
+//        if (message == "FileSearch") {
+//            performFileSearch()
+//        }
 
-//        signatureImage.setupDraggable()
-//            .setAnimated(true)
-//            .setStickyMode(DraggableView.Mode.NON_STICKY)
-//            .build()
+        signatureImage.setupDraggable()
+            .setAnimated(true)
+            .setStickyMode(DraggableView.Mode.NON_STICKY)
+            .build()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -103,22 +116,35 @@ class PDFViewerActivity : AppCompatActivity() {
                     signatureBitmap.height / 4,
                     false
                 )
-//                signatureImage.setImageBitmap(signatureBitmap)
+                signatureImage.setImageBitmap(signatureBitmap)
 
                 invokeMenuButton(true)
             }
         }
 
-        if (requestCode == READ_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                if (data != null) {
-                    selectedPdf = data.data!!
-                    openPDFViewer(selectedPdf)
-                }
-            } else {
-                finish()
-            }
-        }
+//        if (requestCode == READ_REQUEST_CODE) {
+//            if (resultCode == RESULT_OK) {
+//                if (data != null) {
+//                    selectedPdf = data.data!!
+//                    if (!Uri.EMPTY.equals(selectedPdf)) {
+//                        openPDFViewer(selectedPdf)
+//                        Toast.makeText(
+//                            this@PDFViewerActivity,
+//                            "Uri is not empty!",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    } else {
+//                        Toast.makeText(
+//                            this@PDFViewerActivity,
+//                            "Uri is empty!",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }
+//                }
+//            } else {
+//                finish()
+//            }
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -166,65 +192,112 @@ class PDFViewerActivity : AppCompatActivity() {
         }
     }
 
-    private fun openPDFViewer(selectedPdf: Uri) {
-        if(!Uri.EMPTY.equals(selectedPdf)){
-            try {
-                val document = PDSPDFDocument(this, selectedPdf)
-                document.open()
-                this.doc = document
-                imageAdapter = PDSPageAdapter(supportFragmentManager, document)
+//    private fun openPDFViewer(selectedPdf: Uri) {
+//        try {
+//            val document = PDSPDFDocument(this, selectedPdf)
+//            document.open()
+//            this.mDocument = document
+//            imageAdapter = PDSPageAdapter(supportFragmentManager, document)
+//            updatePageNumber(1)
+//            pdfView.adapter = imageAdapter
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            Toast.makeText(
+//                this@PDFViewerActivity,
+//                "Cannot open PDF, either PDF is corrupted or password protected",
+//                Toast.LENGTH_LONG
+//            ).show()
+//            finish()
+//        }
+//    }
 
-                pdfView.adapter = imageAdapter
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(
-                    this@PDFViewerActivity,
-                    "Cannot open PDF, either PDF is corrupted or password protected",
-                    Toast.LENGTH_LONG
-                ).show()
-                finish()
-            }
-        }else{
-            Toast.makeText(
-                this@PDFViewerActivity,
-                "Uri is empty!",
-                Toast.LENGTH_SHORT
-            ).show()
+//    private fun performFileSearch() {
+//        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+//        intent.type = "image/jpeg"
+//        val mimetypes = arrayOf("application/pdf")
+//        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes)
+//        startActivityForResult(intent, READ_REQUEST_CODE)
+//    }
+//
+//    fun getDocument(): PDSPDFDocument {
+//        return this.mDocument
+//    }
+
+    private fun invokeMenuButton(disableButtonFlag: Boolean) {
+        val saveItem: MenuItem = mMenu.findItem(R.id.action_save_document)
+        saveItem.isEnabled = disableButtonFlag
+        isSigned = disableButtonFlag
+        if (disableButtonFlag) {
+            saveItem.icon.alpha = 255
+        } else {
+            saveItem.icon.alpha = 130
         }
-
     }
 
-    private fun performFileSearch() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "image/jpeg"
-        val mimetypes = arrayOf("application/pdf")
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes)
-        startActivityForResult(intent, READ_REQUEST_CODE)
-    }
+//    private fun updatePageNumber(i: Int) {
+//        val textView =
+//            findViewById<View>(com.benzveen.pdfdigitalsignature.R.id.pageNumberTxt) as TextView
+//        findViewById<View>(R.id.pageNumberOverlay).visibility = View.VISIBLE
+//        val stringBuilder = StringBuilder()
+//        stringBuilder.append(i)
+//        stringBuilder.append("/")
+//        stringBuilder.append(this.mDocument.numPages)
+//        textView.text = stringBuilder.toString()
+//        resetTimerHandlerForPageNumber(1000)
+//    }
+
+//    private fun resetTimerHandlerForPageNumber(i: Int) {
+//        this.mUIElemsHandler.removeMessages(1)
+//        val message = Message()
+//        message.what = 1
+//        this.mUIElemsHandler.sendMessageDelayed(message, i.toLong())
+//    }
+
+//    private fun fadePageNumberOverlay() {
+//        val loadAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out)
+//        if (pageNumberOverlay.visibility == View.VISIBLE) {
+//            pageNumberOverlay.startAnimation(loadAnimation)
+//            pageNumberOverlay.visibility = View.INVISIBLE
+//        }
+//    }
+
+//    private class UIElementsHandler(fASDocumentViewer: PDFViewerActivity?) :
+//        Handler() {
+//        private val mActivity: WeakReference<PDFViewerActivity?> = WeakReference(fASDocumentViewer)
+//        override fun handleMessage(message: Message) {
+//            val fASDocumentViewer = mActivity.get()
+//            if (fASDocumentViewer != null && message.what == 1) {
+//                fASDocumentViewer.fadePageNumberOverlay()
+//            }
+//            super.handleMessage(message)
+//        }
+//
+//    }
 
     private fun viewPdf() {
         if (intent != null) {
             val viewType = intent.getStringExtra("ViewType")
             if (!TextUtils.isEmpty(viewType) || viewType != null) {
                 if (viewType.equals("storage")) {
-//                    pdfView.fromUri(selectedPdf)
-//                        .password(null)
-//                        .defaultPage(0)
-//                        .pages(0)
-//                        .enableSwipe(true)
-//                        .swipeHorizontal(false)
-//                        .enableDoubletap(true)
-////                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
-//                        .onPageError { page, _ ->
-//                            Toast.makeText(
-//                                this,
-//                                "Error while opening the page$page",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//
-//                        }.onTap { false }
-//                        .enableAnnotationRendering(true)
-//                        .load()
+                    selectedPdf = Uri.parse((intent.getStringExtra("FileUri")))
+                    pdfView.fromUri(selectedPdf)
+                        .password(null)
+                        .defaultPage(0)
+                        .pages(0)
+                        .enableSwipe(true)
+                        .swipeHorizontal(false)
+                        .enableDoubletap(true)
+//                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
+                        .onPageError { page, _ ->
+                            Toast.makeText(
+                                this,
+                                "Error while opening the page$page",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                        }.onTap { false }
+                        .enableAnnotationRendering(true)
+                        .load()
                 }
             }
         }
@@ -234,14 +307,15 @@ class PDFViewerActivity : AppCompatActivity() {
         pdfBitmap = convertPdfToBitmap(this)!!
         signedPDF = combineTwoBitmap()
 
+        val file = File(createFolderStorageDir(), "$savedFile.jpg")
+
         /*
             method 1
             convert bitmap to jpg,
             then convert jpg to pdf
         */
-        val file = File(createFolderStorageDir(), "$savedFile.jpg")
         convertBitmapToJpg(file)
-//        convertJpgToPdf()
+        convertJpgToPdf()
 //        deleteFile()
 
         /*
@@ -250,6 +324,30 @@ class PDFViewerActivity : AppCompatActivity() {
         */
 //        createFolderStorageDir()
 //        convertBitmapToPdf()
+
+        /*
+            method 3
+            add image to pdf
+         */
+//        addImageToPdf()
+    }
+
+    private fun addImageToPdf(){
+        try {
+            val document = PDDocument()
+            val page = PDPage()
+            document.addPage(page)
+
+            val mInput = FileInputStream(signaturePath)
+            val img = JPEGFactory.createFromStream(document, mInput)
+            val contentStream = PDPageContentStream(document, page)
+            contentStream.drawImage(img, 0f, 0f)
+            contentStream.close()
+            document.save("$savedPath/$savedFile.pdf")
+            document.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun convertBitmapToJpg(photo: File?) {
@@ -367,17 +465,6 @@ class PDFViewerActivity : AppCompatActivity() {
             Log.e(savedFolder, "Directory not created")
         }
         return file
-    }
-
-    private fun invokeMenuButton(disableButtonFlag: Boolean) {
-        val saveItem: MenuItem = mMenu.findItem(R.id.action_save_document)
-        saveItem.isEnabled = disableButtonFlag
-        isSigned = disableButtonFlag
-        if (disableButtonFlag) {
-            saveItem.icon.alpha = 255
-        } else {
-            saveItem.icon.alpha = 130
-        }
     }
 
     private fun deleteFile() {
