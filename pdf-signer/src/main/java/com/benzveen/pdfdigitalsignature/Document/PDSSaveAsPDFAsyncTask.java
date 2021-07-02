@@ -16,21 +16,21 @@ import com.benzveen.pdfdigitalsignature.PDF.PDSPDFDocument;
 import com.benzveen.pdfdigitalsignature.PDF.PDSPDFPage;
 import com.benzveen.pdfdigitalsignature.PDSModel.PDSElement;
 import com.benzveen.pdfdigitalsignature.utils.ViewUtils;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSignatureAppearance;
-import com.itextpdf.text.pdf.PdfStamper;
-import com.itextpdf.text.pdf.security.BouncyCastleDigest;
-import com.itextpdf.text.pdf.security.DigestAlgorithms;
-import com.itextpdf.text.pdf.security.ExternalDigest;
-import com.itextpdf.text.pdf.security.ExternalSignature;
-import com.itextpdf.text.pdf.security.MakeSignature;
-import com.itextpdf.text.pdf.security.PrivateKeySignature;
+//import com.itextpdf.text.BaseColor;
+//import com.itextpdf.text.DocumentException;
+//import com.itextpdf.text.Element;
+//import com.itextpdf.text.Image;
+//import com.itextpdf.text.Rectangle;
+//import com.itextpdf.text.pdf.PdfContentByte;
+//import com.itextpdf.text.pdf.PdfReader;
+//import com.itextpdf.text.pdf.PdfSignatureAppearance;
+//import com.itextpdf.text.pdf.PdfStamper;
+//import com.itextpdf.text.pdf.security.BouncyCastleDigest;
+//import com.itextpdf.text.pdf.security.DigestAlgorithms;
+//import com.itextpdf.text.pdf.security.ExternalDigest;
+//import com.itextpdf.text.pdf.security.ExternalSignature;
+//import com.itextpdf.text.pdf.security.MakeSignature;
+//import com.itextpdf.text.pdf.security.PrivateKeySignature;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -81,11 +81,11 @@ public class PDSSaveAsPDFAsyncTask extends AsyncTask<Void, Void, Boolean> {
         try {
             InputStream stream = document.stream;
             FileOutputStream os = new FileOutputStream(file);
-            PdfReader reader = new PdfReader(stream);
-            PdfStamper signer = null;
+//            PdfReader reader = new PdfReader(stream);
+//            PdfStamper signer = null;
             Bitmap createBitmap = null;
             for (int i = 0; i < document.getNumPages(); i++) {
-                Rectangle mediabox = reader.getPageSize(i + 1);
+//                Rectangle mediabox = reader.getPageSize(i + 1);
                 for (int j = 0; j < document.getPage(i).getNumElements(); j++) {
                     PDSPDFPage page = document.getPage(i);
                     PDSElement element = page.getElement(j);
@@ -104,41 +104,41 @@ public class PDSSaveAsPDFAsyncTask extends AsyncTask<Void, Void, Boolean> {
                     byte[] byteArray = saveBitmap.toByteArray();
                     createBitmap.recycle();
 
-                    Image sigimage = Image.getInstance(byteArray);
+//                    Image sigimage = Image.getInstance(byteArray);
                     if (mCtx.alises != null && mCtx.keyStore != null && mCtx.mdigitalIDPassword != null) {
                         KeyStore ks = mCtx.keyStore;
                         String alias = mCtx.alises;
                         PrivateKey pk = (PrivateKey) ks.getKey(alias, mCtx.mdigitalIDPassword.toCharArray());
                         Certificate[] chain = ks.getCertificateChain(alias);
-                        if (signer == null)
-                            signer = PdfStamper.createSignature(reader, os, '\0');
-
-                        PdfSignatureAppearance appearance = signer.getSignatureAppearance();
-
-                        float top = mediabox.getHeight() - (bounds.top + bounds.height());
-                        appearance.setVisibleSignature(new Rectangle(bounds.left, top, bounds.left + bounds.width(), top + bounds.height()), i + 1, "sig" + j);
-                        appearance.setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC);
-                        appearance.setSignatureGraphic(sigimage);
-                        ExternalDigest digest = new BouncyCastleDigest();
-                        ExternalSignature signature = new PrivateKeySignature(pk, DigestAlgorithms.SHA256, null);
-                        MakeSignature.signDetached(appearance, digest, signature, chain, null, null, null, 0, MakeSignature.CryptoStandard.CADES);
+//                        if (signer == null)
+//                            signer = PdfStamper.createSignature(reader, os, '\0');
+//
+//                        PdfSignatureAppearance appearance = signer.getSignatureAppearance();
+//
+//                        float top = mediabox.getHeight() - (bounds.top + bounds.height());
+//                        appearance.setVisibleSignature(new Rectangle(bounds.left, top, bounds.left + bounds.width(), top + bounds.height()), i + 1, "sig" + j);
+//                        appearance.setRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC);
+//                        appearance.setSignatureGraphic(sigimage);
+//                        ExternalDigest digest = new BouncyCastleDigest();
+//                        ExternalSignature signature = new PrivateKeySignature(pk, DigestAlgorithms.SHA256, null);
+//                        MakeSignature.signDetached(appearance, digest, signature, chain, null, null, null, 0, MakeSignature.CryptoStandard.CADES);
 
 
                     } else {
-                        if (signer == null)
-                            signer = new PdfStamper(reader, os, '\0');
-                        PdfContentByte contentByte = signer.getOverContent(i + 1);
-                        sigimage.setAlignment(Image.ALIGN_UNDEFINED);
-                        sigimage.scaleToFit(bounds.width(), bounds.height());
-                        sigimage.setAbsolutePosition(bounds.left - (sigimage.getScaledWidth() - bounds.width()) / 2, mediabox.getHeight() - (bounds.top + bounds.height()));
-                        contentByte.addImage(sigimage);
+//                        if (signer == null)
+//                            signer = new PdfStamper(reader, os, '\0');
+//                        PdfContentByte contentByte = signer.getOverContent(i + 1);
+//                        sigimage.setAlignment(Image.ALIGN_UNDEFINED);
+//                        sigimage.scaleToFit(bounds.width(), bounds.height());
+//                        sigimage.setAbsolutePosition(bounds.left - (sigimage.getScaledWidth() - bounds.width()) / 2, mediabox.getHeight() - (bounds.top + bounds.height()));
+//                        contentByte.addImage(sigimage);
                     }
                 }
             }
-            if (signer != null)
-                signer.close();
-            if (reader != null)
-                reader.close();
+//            if (signer != null)
+//                signer.close();
+//            if (reader != null)
+//                reader.close();
             if (os != null)
                 os.close();
         } catch (Exception e) {

@@ -1,7 +1,5 @@
 package com.app.digitalsignature.ui.document
 
-//import com.itextpdf.text.*
-//import com.itextpdf.text.pdf.*
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -21,6 +19,7 @@ import android.view.ViewTreeObserver
 import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.io.*
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
 import com.shockwave.pdfium.PdfiumCore
@@ -31,7 +30,8 @@ import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import io.github.hyuwah.draggableviewlib.DraggableView
 import io.github.hyuwah.draggableviewlib.setupDraggable
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
-import java.io.*
+import com.itextpdf.text.*
+import com.itextpdf.text.pdf.*
 
 
 class PDFViewerActivity : AppCompatActivity() {
@@ -364,21 +364,21 @@ class PDFViewerActivity : AppCompatActivity() {
     }
 
     private fun convertJpgToPdf() {
-//        val document = Document()
-//
-//        // Change pdf filename
-//        PdfWriter.getInstance(document, FileOutputStream("$savedPath/$savedFile.pdf"))
-//
-//        document.open()
-//
-//        val image: Image = Image.getInstance("$savedPath/$savedFile.jpg")
-//
-//        val scaler: Float =
-//            (document.pageSize.width - document.leftMargin() - document.rightMargin() - 0) / image.width * 100
-//        image.scalePercent(scaler)
-//
-//        document.add(image)
-//        document.close()
+        val document = Document()
+
+        // Change pdf filename
+        PdfWriter.getInstance(document, FileOutputStream("$savedPath/$savedFile.pdf"))
+
+        document.open()
+
+        val image: Image = Image.getInstance("$savedPath/$savedFile.jpg")
+
+        val scaler: Float =
+            (document.pageSize.width - document.leftMargin() - document.rightMargin() - 0) / image.width * 100
+        image.scalePercent(scaler)
+
+        document.add(image)
+        document.close()
     }
 
     private fun convertPdfToBitmap(context: Context): Bitmap? {
@@ -396,8 +396,8 @@ class PDFViewerActivity : AppCompatActivity() {
             pdfWidth = width
             pdfHeight = height
 
-//            tvPdfWidth.text = pdfWidth.toString()
-//            tvPdfHeight.text = pdfHeight.toString()
+            tvPdfWidth.text = pdfWidth.toString()
+            tvPdfHeight.text = pdfHeight.toString()
 
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
@@ -443,15 +443,15 @@ class PDFViewerActivity : AppCompatActivity() {
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(pdfBitmap, Matrix(), null)
 
-//        val left = signatureImage.x * (pdfWidth/layoutWidth)
-//        val top = signatureImage.y * (pdfHeight/layoutHeight)
+        val left = signatureImage.x * (pdfWidth/layoutWidth)
+        val top = signatureImage.y * (pdfHeight/layoutHeight)
         signatureBitmap = Bitmap.createScaledBitmap(
             signatureBitmap,
             signatureBitmap.width * 3,
             signatureBitmap.height * 3,
             false
         )
-//        canvas.drawBitmap(signatureBitmap, left, top, null)
+        canvas.drawBitmap(signatureBitmap, left, top, null)
 
         pdfBitmap.recycle()
         signatureBitmap.recycle()
