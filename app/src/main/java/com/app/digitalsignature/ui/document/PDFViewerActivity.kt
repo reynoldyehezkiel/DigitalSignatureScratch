@@ -1,7 +1,5 @@
 package com.app.digitalsignature.ui.document
 
-
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.*
 import android.graphics.*
@@ -10,16 +8,15 @@ import android.os.*
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
-import android.widget.RelativeLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
+import com.github.barteksc.pdfviewer.PDFView.Configurator
+import com.github.barteksc.pdfviewer.listener.OnRenderListener
 import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfWriter
 import com.shockwave.pdfium.PdfiumCore
-import com.tom_roush.pdfbox.pdmodel.*
-import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
 import java.io.*
@@ -31,11 +28,11 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var selectedPdf: Uri
     private lateinit var signatureBitmap: Bitmap
     private lateinit var pdfBitmap: Bitmap
-    private lateinit var signedPDF: Bitmap
+    private lateinit var signedPdf: Bitmap
     private lateinit var signatureFile: String
     private lateinit var signaturePath: File
 
-    private val savedFile = "SignedPDF"
+    private val savedFile = "signedPdf"
     private val savedFolder = "Digital Signature"
     private val savedPath =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
@@ -51,19 +48,19 @@ class PDFViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
 
-        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
-        val vto = layout.viewTreeObserver
-        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            @SuppressLint("SetTextI18n")
-            override fun onGlobalLayout() {
-                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                layoutWidth = layout.measuredWidth
-                layoutHeight = layout.measuredHeight
-
-                tvLayoutWidth.text = "Layout Width: $layoutWidth"
-                tvLayoutHeight.text = "Layout Height: $layoutHeight"
-            }
-        })
+//        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
+//        val vto = layout.viewTreeObserver
+//        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+//            @SuppressLint("SetTextI18n")
+//            override fun onGlobalLayout() {
+//                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
+//                layoutWidth = layout.measuredWidth
+//                layoutHeight = layout.measuredHeight
+//
+//                tvLayoutWidth.text = "Layout Width: $layoutWidth"
+//                tvLayoutHeight.text = "Layout Height: $layoutHeight"
+//            }
+//        })
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
@@ -90,7 +87,12 @@ class PDFViewerActivity : AppCompatActivity() {
                     signatureBitmap.height / 4,
                     false
                 )
-                signatureImage.setImageBitmap(signatureBitmap)
+//                signatureImage.setImageBitmap(signatureBitmap)
+                pdfView.fromUri(selectedPdf)
+                    .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
+                        canvas.drawBitmap(signatureBitmap, 0F, 0F, null)
+                    }
+                    .load()
 
                 invokeMenuButton(true)
             }
@@ -174,21 +176,21 @@ class PDFViewerActivity : AppCompatActivity() {
 
     private fun savePdf() {
         pdfBitmap = convertPdfToBitmap(this)!!
-        signedPDF = combineTwoBitmap()
+        signedPdf = combineTwoBitmap()
 
         val file = File(createFolderStorageDir(), "$savedFile.jpg")
-        convertBitmapToJpg(file)
-        convertJpgToPdf()
+        convertBitmapToJpg(file) //saved in Documents/Digital Signature
+        convertJpgToPdf()        //saved in Documents/Digital Signature
 //        deleteFile()
     }
 
     private fun convertBitmapToJpg(photo: File?) {
         val newBitmap =
-            Bitmap.createBitmap(signedPDF.width, signedPDF.height, Bitmap.Config.ARGB_8888)
+            Bitmap.createBitmap(signedPdf.width, signedPdf.height, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(newBitmap)
         canvas.drawColor(Color.parseColor("#ffffff"))
-        canvas.drawBitmap(signedPDF, 0f, 0f, null)
+        canvas.drawBitmap(signedPdf, 0f, 0f, null)
 
         val stream: OutputStream = FileOutputStream(photo)
         newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
@@ -247,15 +249,15 @@ class PDFViewerActivity : AppCompatActivity() {
         val canvas = Canvas(bitmap)
         canvas.drawBitmap(pdfBitmap, Matrix(), null)
 
-        val left = signatureImage.x * (pdfWidth / layoutWidth)
-        val top = signatureImage.y * (pdfHeight / layoutHeight)
+//        val left = signatureImage.x * (pdfWidth / layoutWidth)
+//        val top = signatureImage.y * (pdfHeight / layoutHeight)
         signatureBitmap = Bitmap.createScaledBitmap(
             signatureBitmap,
             signatureBitmap.width * 3,
             signatureBitmap.height * 3,
             false
         )
-        canvas.drawBitmap(signatureBitmap, left, top, null)
+        canvas.drawBitmap(signatureBitmap, 0F, 0F, null)
 
         pdfBitmap.recycle()
         signatureBitmap.recycle()
