@@ -25,29 +25,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvLayoutWidth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvLayoutWidth"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content" />-->
 
-        <TextView
-            android:id="@+id/tvLayoutHeight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tvLayoutWidth"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvLayoutHeight"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@id/tvLayoutWidth" />-->
 
-        <TextView
-            android:id="@+id/tvPdfWidth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tvLayoutHeight"
-            android:layout_marginTop="15dp"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvPdfWidth"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@id/tvLayoutHeight"-->
+<!--            android:layout_marginTop="15dp" />-->
 
-        <TextView
-            android:id="@+id/tvPdfHeight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-        android:layout_below="@id/tvPdfWidth"/>
+<!--        <TextView-->
+<!--            android:id="@+id/tvPdfHeight"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@id/tvPdfWidth" />-->
 
     </com.github.barteksc.pdfviewer.PDFView>
 

@@ -1,5 +1,6 @@
 package com.app.digitalsignature.ui.signature
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.*
@@ -9,6 +10,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.scale
 import com.app.digitalsignature.R
 import com.github.gcacace.signaturepad.views.SignaturePad
 import kotlinx.android.synthetic.main.activity_signature.*
@@ -27,16 +29,28 @@ class SignatureActivity : AppCompatActivity() {
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             .toString() + "/$folderName/" + ".nomedia/"
 
+    private var pdfWidth = 0
+    private var pdfHeight = 0
+
     companion object {
         private const val REQUEST_EXTERNAL_STORAGE = 1
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signature)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Draw Signature"
+
+        pdfWidth = intent.getIntExtra("pdfWidth",0)
+        pdfHeight = intent.getIntExtra("pdfHeight",0)
+        widthPdf.text = "Width = $pdfWidth"
+        heightPdf.text = "Height = $pdfHeight"
+
+        // get width & height pdf
+
 
         //draw signature
         signaturePad.setOnSignedListener(object : SignaturePad.OnSignedListener {
@@ -91,6 +105,7 @@ class SignatureActivity : AppCompatActivity() {
 
     private fun saveSignature(){
         val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
+//        signatureBitmap.scale(pdfWidth,pdfHeight)
 
         if (addJpgSignatureToGallery(signatureBitmap)) {
             val intent = Intent()
