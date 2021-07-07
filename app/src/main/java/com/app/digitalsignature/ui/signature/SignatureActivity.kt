@@ -29,9 +29,6 @@ class SignatureActivity : AppCompatActivity() {
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
             .toString() + "/$folderName/" + ".nomedia/"
 
-    private var pdfWidth = 0
-    private var pdfHeight = 0
-
     companion object {
         private const val REQUEST_EXTERNAL_STORAGE = 1
     }
@@ -43,14 +40,6 @@ class SignatureActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Draw Signature"
-
-        pdfWidth = intent.getIntExtra("pdfWidth",0)
-        pdfHeight = intent.getIntExtra("pdfHeight",0)
-        widthPdf.text = "Width = $pdfWidth"
-        heightPdf.text = "Height = $pdfHeight"
-
-        // get width & height pdf
-
 
         //draw signature
         signaturePad.setOnSignedListener(object : SignaturePad.OnSignedListener {

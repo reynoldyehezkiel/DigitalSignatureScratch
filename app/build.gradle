@@ -100,6 +100,4 @@ dependencies {
     implementation 'com.github.hyuwah:DraggableView:1.0.0'
 
     implementation 'com.github.castorflex.verticalviewpager:library:19.0.1'
-
-    implementation project(":pdf-signer")
 }

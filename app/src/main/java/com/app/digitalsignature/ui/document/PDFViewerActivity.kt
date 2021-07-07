@@ -2,48 +2,35 @@ package com.app.digitalsignature.ui.document
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Context
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
+import android.content.*
+import android.graphics.*
 import android.net.Uri
-import android.os.Bundle
-import android.os.Environment
-import android.os.ParcelFileDescriptor
+import android.os.*
 import android.text.TextUtils
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewTreeObserver
-import android.widget.RelativeLayout
-import android.widget.Toast
+import android.view.*
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import com.app.digitalsignature.R
 import com.app.digitalsignature.ui.signature.SignatureActivity
-import com.benzveen.pdfdigitalsignature.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.itextpdf.text.Document
-import com.itextpdf.text.Image
-import com.itextpdf.text.PageSize
+import com.itextpdf.text.*
 import com.itextpdf.text.pdf.PdfWriter
 import com.shockwave.pdfium.PdfiumCore
-import io.github.hyuwah.draggableviewlib.DraggableView
-import io.github.hyuwah.draggableviewlib.setupDraggable
+import io.github.hyuwah.draggableviewlib.*
 import kotlinx.android.synthetic.main.activity_pdfviewer.*
-import kotlinx.android.synthetic.main.tool_list_document.view.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
+import kotlinx.android.synthetic.main.bottom_sheet.*
+import kotlinx.android.synthetic.main.bottom_sheet.view.*
+import java.io.*
 
 
 class PDFViewerActivity : AppCompatActivity() {
 
+    private var currentFile: File? = null
+    private var bottomSheetDialog: BottomSheetDialog? = null
     private lateinit var mMenu: Menu
     private lateinit var selectedPdf: Uri
     private lateinit var signatureBitmap: Bitmap
@@ -51,7 +38,6 @@ class PDFViewerActivity : AppCompatActivity() {
     private lateinit var signedPdf: Bitmap
     private lateinit var signatureFile: String
     private lateinit var signaturePath: File
-    private lateinit var mBottomSheetDialog: BottomSheetDialog
 
     private val savedFile = "signedPdf"
     private val savedFolder = "Digital Signature"
@@ -62,8 +48,12 @@ class PDFViewerActivity : AppCompatActivity() {
     private var isSigned: Boolean = false
     private var layoutWidth = 0
     private var layoutHeight = 0
-    private var pdfWidth = 0
-    private var pdfHeight = 0
+    private var pdfWidth = 0F
+    private var pdfHeight = 0F
+
+    companion object {
+        private const val RQS_OPEN_DOCUMENT_TREE = 24
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,24 +77,11 @@ class PDFViewerActivity : AppCompatActivity() {
         supportActionBar?.title = ""
 
         viewPdf()
-        getPdfSize()
 
         signatureImage.setupDraggable()
             .setAnimated(true)
             .setStickyMode(DraggableView.Mode.NON_STICKY)
             .build()
-    }
-
-    private fun getPdfSize() {
-        val pageNumber = 0
-        val pdfiumCore = PdfiumCore(this)
-        val fd: ParcelFileDescriptor? =
-            selectedPdf.let { this.contentResolver.openFileDescriptor(it, "r") }
-        val pdfDocument = pdfiumCore.newDocument(fd)
-        pdfiumCore.openPage(pdfDocument, pageNumber)
-
-        pdfWidth = pdfiumCore.getPageWidth(pdfDocument, pageNumber)
-        pdfHeight = pdfiumCore.getPageHeight(pdfDocument, pageNumber)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -129,6 +106,28 @@ class PDFViewerActivity : AppCompatActivity() {
 //                    .load()
 
                 invokeMenuButton(true)
+            }
+        }
+        if (resultCode == RESULT_OK && requestCode == RQS_OPEN_DOCUMENT_TREE) {
+            if (data != null) {
+                val uriTree: Uri? = data.data
+                val documentFile = uriTree?.let { DocumentFile.fromTreeUri(this, it) }
+                val newFile =
+                    currentFile?.let { documentFile?.createFile("application/pdf", it.name) }
+                try {
+                    if (newFile != null) {
+                        currentFile?.let { copy(it, newFile) }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                currentFile = null
+                bottomSheetDialog?.dismiss()
+                Toast.makeText(
+                    this,
+                    "File saved successfully!",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -158,7 +157,7 @@ class PDFViewerActivity : AppCompatActivity() {
             }
             R.id.action_save_document -> {
                 savePdf()
-//                showBottomSheetDialog()
+                showBottomSheetDialog()
                 return true
             }
         }
@@ -167,7 +166,7 @@ class PDFViewerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         if (isSigned) {
-            val alertDialog = AlertDialog.Builder(this)
+            AlertDialog.Builder(this)
                 .setTitle("Save Document")
                 .setMessage("Want to save your changes to PDF document?")
                 .setPositiveButton(
@@ -232,8 +231,8 @@ class PDFViewerActivity : AppCompatActivity() {
             val width = pdfiumCore.getPageWidth(pdfDocument, pageNumber)
             val height = pdfiumCore.getPageHeight(pdfDocument, pageNumber)
 
-            pdfWidth = width
-            pdfHeight = height
+            pdfWidth = width.toFloat()
+            pdfHeight = height.toFloat()
 
 //            tvPdfWidth.text = pdfWidth.toString()
 //            tvPdfHeight.text = pdfHeight.toString()
@@ -305,46 +304,56 @@ class PDFViewerActivity : AppCompatActivity() {
         document.close()
     }
 
-//    private fun showBottomSheetDialog(){
-//        val view = layoutInflater.inflate(R.layout.tool_list_document, null)
-//
-//        view.lyt_email.setOnClickListener {
-//            mBottomSheetDialog.dismiss()
-//            val contentUri = FileProvider.getUriForFile(
-//                applicationContext, applicationContext.packageName + ".provider", currentFile
-//            )
-//            val target = Intent(Intent.ACTION_SEND)
-//            target.type = "text/plain"
-//            target.putExtra(Intent.EXTRA_STREAM, contentUri)
-//            target.putExtra(Intent.EXTRA_SUBJECT, "Subject")
-//            startActivity(Intent.createChooser(target, "Send via Email..."))
-//        }
-//
-//        view.lyt_share.setOnClickListener {
-//            mBottomSheetDialog.dismiss()
-//            val contentUri = FileProvider.getUriForFile(
-//                applicationContext, applicationContext.packageName + ".provider", currentFile
-//            )
-//            val target = ShareCompat.IntentBuilder.from(this@PDFViewerActivity)
-//                .setStream(contentUri).intent
-//            target.data = contentUri
-//            target.type = "application/pdf"
-//            target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//            if (target.resolveActivity(packageManager) != null) {
-//                startActivity(target)
-//            }
-//        }
-//
-//        view.lyt_download.setOnClickListener {
-//            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-//            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-//            startActivityForResult(
-//                intent,
-//                PDFViewerActivity.RQS_OPEN_DOCUMENT_TREE
-//            )
-//            selectedFile = currentFile
-//        }
-//    }
+    @SuppressLint("QueryPermissionsNeeded", "InflateParams")
+    private fun showBottomSheetDialog() {
+        currentFile = File("$savedPath/$savedFile.pdf")
+
+        val view = layoutInflater.inflate(R.layout.bottom_sheet, null)
+
+        view.lyt_email.setOnClickListener {
+            bottomSheetDialog?.dismiss()
+            val contentUri = FileProvider.getUriForFile(
+                applicationContext, applicationContext.packageName + ".provider", currentFile!!
+            )
+            val target = Intent(Intent.ACTION_SEND)
+            target.type = "text/plain"
+            target.putExtra(Intent.EXTRA_STREAM, contentUri)
+            target.putExtra(Intent.EXTRA_SUBJECT, "Subject")
+            startActivity(Intent.createChooser(target, "Send via Email..."))
+        }
+
+        view.lyt_share.setOnClickListener {
+            bottomSheetDialog?.dismiss()
+            val contentUri = FileProvider.getUriForFile(
+                applicationContext, applicationContext.packageName + ".provider", currentFile!!
+            )
+            val target = ShareCompat.IntentBuilder.from(this@PDFViewerActivity)
+                .setStream(contentUri).intent
+            target.data = contentUri
+            target.type = "application/pdf"
+            target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            if (target.resolveActivity(packageManager) != null) {
+                startActivity(target)
+            }
+        }
+
+        view.lyt_download.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            startActivityForResult(
+                intent,
+                RQS_OPEN_DOCUMENT_TREE
+            )
+        }
+
+        bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog?.setContentView(view)
+
+        bottomSheetDialog?.show()
+        bottomSheetDialog?.setOnDismissListener {
+            bottomSheetDialog = null
+        }
+    }
 
     private fun createFolderStorageDir(): File {
         val file = File(savedPath)
@@ -362,6 +371,26 @@ class PDFViewerActivity : AppCompatActivity() {
             saveItem.icon.alpha = 255
         } else {
             saveItem.icon.alpha = 130
+        }
+    }
+
+    @Throws(IOException::class)
+    fun copy(selectedFile: File, newFile: DocumentFile) {
+        try {
+            val out = contentResolver.openOutputStream(newFile.uri)
+            val `in` = FileInputStream(selectedFile.path)
+            val buffer = ByteArray(1024)
+            var read: Int
+            while (`in`.read(buffer).also { read = it } != -1) {
+                out!!.write(buffer, 0, read)
+            }
+            `in`.close()
+            out!!.flush()
+            out.close()
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
