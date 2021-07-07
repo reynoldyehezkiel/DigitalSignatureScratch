@@ -59,20 +59,6 @@ class PDFViewerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdfviewer)
 
-        val layout = findViewById<View>(R.id.pdfView) as RelativeLayout
-        val vto = layout.viewTreeObserver
-        vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            @SuppressLint("SetTextI18n")
-            override fun onGlobalLayout() {
-                layout.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                layoutWidth = layout.measuredWidth
-                layoutHeight = layout.measuredHeight
-
-//                tvLayoutWidth.text = "Layout Width: $layoutWidth"
-//                tvLayoutHeight.text = "Layout Height: $layoutHeight"
-            }
-        })
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = ""
 
@@ -128,6 +114,7 @@ class PDFViewerActivity : AppCompatActivity() {
                     "File saved successfully!",
                     Toast.LENGTH_SHORT
                 ).show()
+                finish()
             }
         }
     }
@@ -193,7 +180,6 @@ class PDFViewerActivity : AppCompatActivity() {
                         .enableSwipe(true)
                         .swipeHorizontal(false)
                         .enableDoubletap(true)
-//                        .onDraw { canvas, pageWidth, pageHeight, displayedPage -> }
                         .onPageError { page, _ ->
                             Toast.makeText(
                                 this,
@@ -320,6 +306,7 @@ class PDFViewerActivity : AppCompatActivity() {
             target.putExtra(Intent.EXTRA_STREAM, contentUri)
             target.putExtra(Intent.EXTRA_SUBJECT, "Subject")
             startActivity(Intent.createChooser(target, "Send via Email..."))
+            finish()
         }
 
         view.lyt_share.setOnClickListener {
@@ -335,6 +322,7 @@ class PDFViewerActivity : AppCompatActivity() {
             if (target.resolveActivity(packageManager) != null) {
                 startActivity(target)
             }
+            finish()
         }
 
         view.lyt_download.setOnClickListener {

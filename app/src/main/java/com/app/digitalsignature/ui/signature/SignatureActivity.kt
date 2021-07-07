@@ -94,7 +94,6 @@ class SignatureActivity : AppCompatActivity() {
 
     private fun saveSignature(){
         val signatureBitmap = signaturePad.getTransparentSignatureBitmap(true)
-//        signatureBitmap.scale(pdfWidth,pdfHeight)
 
         if (addJpgSignatureToGallery(signatureBitmap)) {
             val intent = Intent()
